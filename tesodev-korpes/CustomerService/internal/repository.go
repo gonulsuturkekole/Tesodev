@@ -22,7 +22,7 @@ func (r *Repository) FindByID(ctx context.Context, id string) (*types.Customer, 
 	return customer, nil
 }
 
-func (r *Repository) Create(ctx context.Context, customer interface{}) (*mongo.InsertOneResult, error) {
+func (r *Repository) Create(ctx context.Context, customer *types.Customer) (*mongo.InsertOneResult, error) {
 	res, err := r.collection.InsertOne(ctx, customer)
 	return res, err
 }
