@@ -46,7 +46,13 @@ func (h *Handler) Create(c echo.Context) error {
 	if err := h.service.Create(c.Request().Context(), customer); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusCreated, "Customer created successfully")
+
+	response := map[string]interface{}{
+		"message":    "success",
+		"creadtedId": "a",
+	}
+
+	return c.JSON(http.StatusCreated, response)
 }
 
 func (h *Handler) Update(c echo.Context) error {
