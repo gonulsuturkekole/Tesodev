@@ -17,13 +17,13 @@ func NewRepository(col *mongo.Collection) *Repository {
 }
 
 func (r *Repository) FindByID(ctx context.Context, id string) (*types.Order, error) {
-	var customer *types.Order
-	return customer, nil
+	var order *types.Order
+	return order, nil
 }
 
-func (r *Repository) Create(ctx context.Context, customer interface{}) error {
-	// Placeholder method
-	return nil
+func (r *Repository) Create(ctx context.Context, order interface{}) (*mongo.InsertOneResult, error) {
+	res, err := r.collection.InsertOne(ctx, order)
+	return res, err
 }
 
 func (r *Repository) Update(ctx context.Context, id string, update interface{}) error {
