@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"tesodev-korpes/CustomerService/internal/types"
 )
@@ -26,12 +27,14 @@ func (r *Repository) Create(ctx context.Context, customer interface{}) (*mongo.I
 	return res, err
 }
 
-func (r *Repository) Update(ctx context.Context, id string, update interface{}) error {
-	// Placeholder method
-	return nil
+func (r *Repository) Update(ctx context.Context, id string, customer *types.Customer) error {
+	filter := bson.D{{"_id", id}}
+	_, err := r.collection.UpdateOne(ctx, filter, customer)
+	return err
 }
 
 func (r *Repository) Delete(ctx context.Context, id string) error {
-	// Placeholder method
-	return nil
+	filter := bson.D{{"_id", id}}
+	_, err := r.collection.DeleteOne(ctx, filter)
+	return err
 }

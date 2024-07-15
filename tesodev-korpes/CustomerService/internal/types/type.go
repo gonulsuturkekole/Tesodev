@@ -12,3 +12,13 @@ type CustomerResponseModel struct {
 	LastName  string `bson:"last_name" json:"last_name"`
 	Email     string `bson:"email" json:"email"`
 }
+
+type CustomerUpdateModel struct {
+	FirstName string `bson:"first_name" json:"first_name"`
+	LastName  string `bson:"last_name" json:"last_name"`
+	Phone     string `bson:"phone" json:"phone"`
+	Address   string `bson:"address" json:"address"`
+	City      string `bson:"city" json:"city"`
+	State     string `bson:"state" json:"state"`
+	ZipCode   string `bson:"zip_code" json:"zip_code"`
+}

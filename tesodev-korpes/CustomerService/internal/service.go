@@ -45,8 +45,16 @@ func (s *Service) Create(ctx context.Context, customer interface{}) (primitive.O
 
 }
 
-func (s *Service) Update(ctx context.Context, id string, update interface{}) error {
-	return s.repo.Update(ctx, id, update)
+func (s *Service) Update(ctx context.Context, id string, customerUpdateModel types.CustomerUpdateModel) error {
+	customer, err := s.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	customer.FirstName = customerUpdateModel.FirstName
+	customer.LastName = customerUpdateModel.LastName
+	customer.Phone = customerUpdateModel.Phone
+	return s.repo.Update(ctx, id, customer)
 }
 
 func (s *Service) Delete(ctx context.Context, id string) error {
