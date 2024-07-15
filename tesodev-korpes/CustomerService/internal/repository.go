@@ -21,9 +21,9 @@ func (r *Repository) FindByID(ctx context.Context, id string) (*types.Customer, 
 	return customer, nil
 }
 
-func (r *Repository) Create(ctx context.Context, customer interface{}) error {
-	// Placeholder method
-	return nil
+func (r *Repository) Create(ctx context.Context, customer interface{}) (*mongo.InsertOneResult, error) {
+	res, err := r.collection.InsertOne(ctx, customer)
+	return res, err
 }
 
 func (r *Repository) Update(ctx context.Context, id string, update interface{}) error {

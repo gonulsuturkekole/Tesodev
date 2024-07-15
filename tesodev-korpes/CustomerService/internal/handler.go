@@ -2,6 +2,7 @@ package internal
 
 import (
 	"github.com/labstack/echo/v4"
+	_ "go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 )
 
@@ -33,8 +34,14 @@ func (h *Handler) GetByID(c echo.Context) error {
 
 func (h *Handler) Create(c echo.Context) error {
 	var customer interface{}
+
 	if err := c.Bind(&customer); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	id, err := h.service.Create(c.Request().Context(), customer)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	//change the structure to;
 	//this endpoint should return that response when 200;
@@ -43,13 +50,13 @@ func (h *Handler) Create(c echo.Context) error {
 	//	"creadtedId" : "550e8400-e29b-41d4-a716-446655440000"
 	//}
 	//manage somehow (hint : look for a way to get that id from the mongo method that you will be using)
-	if err := h.service.Create(c.Request().Context(), customer); err != nil {
+	/*if err := h.service.Create(c.Request().Context(), customer); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
+	}*/
 
 	response := map[string]interface{}{
-		"message":    "success",
-		"creadtedId": "b",
+		"message":    "Successed!",
+		"creadtedId": id.Hex(),
 	}
 
 	return c.JSON(http.StatusCreated, response)
