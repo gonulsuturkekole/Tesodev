@@ -49,7 +49,7 @@ func (h *Handler) Create(c echo.Context) error {
 
 	response := map[string]interface{}{
 		"message":    "success",
-		"creadtedId": "a",
+		"creadtedId": "b",
 	}
 
 	return c.JSON(http.StatusCreated, response)
