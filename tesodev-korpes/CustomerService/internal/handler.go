@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	_ "go.mongodb.org/mongo-driver/mongo"
 	"net/http"
+	"tesodev-korpes/CustomerService/internal/types"
 )
 
 type Handler struct {
@@ -64,11 +65,11 @@ func (h *Handler) Create(c echo.Context) error {
 
 func (h *Handler) Update(c echo.Context) error {
 	id := c.Param("id")
-	var update interface{}
-	if err := c.Bind(&update); err != nil {
+	var customer types.CustomerUpdateModel
+	if err := c.Bind(&customer); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	if err := h.service.Update(c.Request().Context(), id, update); err != nil {
+	if err := h.service.Update(c.Request().Context(), id, customer); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, "Customer updated successfully")
@@ -76,11 +77,11 @@ func (h *Handler) Update(c echo.Context) error {
 
 func (h *Handler) PartialUpdate(c echo.Context) error {
 	id := c.Param("id")
-	var update interface{}
-	if err := c.Bind(&update); err != nil {
+	var customer types.CustomerUpdateModel
+	if err := c.Bind(&customer); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	if err := h.service.Update(c.Request().Context(), id, update); err != nil {
+	if err := h.service.Update(c.Request().Context(), id, customer); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, "Customer partially updated successfully")
