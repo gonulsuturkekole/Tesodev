@@ -3,6 +3,7 @@ package types
 import "time"
 
 type Order struct {
+	Id              string    `bson:"_id" json:"id"`
 	OrderName       string    `bson:"order_name" json:"order_name"`
 	Price           float64   `bson:"price" json:"price"`
 	Stock           int       `bson:"stock" json:"stock"`
