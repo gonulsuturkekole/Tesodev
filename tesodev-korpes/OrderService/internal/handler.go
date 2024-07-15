@@ -33,13 +33,13 @@ func (h *Handler) GetByID(c echo.Context) error {
 }
 
 func (h *Handler) Create(c echo.Context) error {
-	var customer interface{}
+	var order interface{}
 
-	if err := c.Bind(&customer); err != nil {
+	if err := c.Bind(&order); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	id, err := h.service.Create(c.Request().Context(), customer)
+	id, err := h.service.Create(c.Request().Context(), order)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
