@@ -34,7 +34,7 @@ func (h *Handler) GetByID(c echo.Context) error {
 }
 
 func (h *Handler) Create(c echo.Context) error {
-	var customer interface{}
+	var customer *types.Customer
 
 	if err := c.Bind(&customer); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())

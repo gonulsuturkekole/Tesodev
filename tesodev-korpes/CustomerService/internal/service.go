@@ -33,7 +33,7 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Customer, erro
 	return customer, nil
 }
 
-func (s *Service) Create(ctx context.Context, customer interface{}) (primitive.ObjectID, error) {
+func (s *Service) Create(ctx context.Context, customer *types.Customer) (primitive.ObjectID, error) {
 
 	res, err := s.repo.Create(ctx, customer)
 	if err != nil {
