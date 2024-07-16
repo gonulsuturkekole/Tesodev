@@ -2,7 +2,7 @@ package internal
 
 import (
 	"context"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/google/uuid"
 	"tesodev-korpes/CustomerService/internal/types"
 )
 
@@ -33,16 +33,19 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Customer, erro
 	return customer, nil
 }
 
-func (s *Service) Create(ctx context.Context, customer *types.Customer) (primitive.ObjectID, error) {
-
-	res, err := s.repo.Create(ctx, customer)
+// Create method creates a new customer with a custom UUID as the ID
+func (s *Service) Create(ctx context.Context, customer *types.Customer) (string, error) {
+	// Generate a new UUID
+	customID := uuid.New().String()
+	// Set the customer's ID to the generated UUID
+	customer.Id = customID
+	// Insert the customer data into MongoDB
+	_, err := s.repo.Create(ctx, customer)
 	if err != nil {
-		return primitive.NilObjectID, err
+		return "", err
 	}
-
-	id := res.InsertedID.(primitive.ObjectID)
-	return id, nil
-
+	// Return the generated ID if the insertion is successful
+	return customID, nil
 }
 
 func (s *Service) Update(ctx context.Context, id string, customerUpdateModel types.CustomerUpdateModel) error {

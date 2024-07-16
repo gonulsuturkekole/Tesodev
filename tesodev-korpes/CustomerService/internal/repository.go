@@ -22,6 +22,7 @@ func (r *Repository) FindByID(ctx context.Context, id string) (*types.Customer, 
 	return customer, nil
 }
 
+// Create method in Repository inserts a customer into MongoDB
 func (r *Repository) Create(ctx context.Context, customer *types.Customer) (*mongo.InsertOneResult, error) {
 	res, err := r.collection.InsertOne(ctx, customer)
 	return res, err
@@ -29,7 +30,8 @@ func (r *Repository) Create(ctx context.Context, customer *types.Customer) (*mon
 
 func (r *Repository) Update(ctx context.Context, id string, customer *types.Customer) error {
 	filter := bson.D{{"_id", id}}
-	_, err := r.collection.UpdateOne(ctx, filter, customer)
+	update := bson.M{"$set": customer}
+	_, err := r.collection.UpdateOne(ctx, filter, update)
 	return err
 }
 

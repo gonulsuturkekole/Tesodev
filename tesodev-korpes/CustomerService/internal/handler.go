@@ -57,7 +57,7 @@ func (h *Handler) Create(c echo.Context) error {
 
 	response := map[string]interface{}{
 		"message":    "Successed!",
-		"creadtedId": id.Hex(),
+		"creadtedId": id,
 	}
 
 	return c.JSON(http.StatusCreated, response)
