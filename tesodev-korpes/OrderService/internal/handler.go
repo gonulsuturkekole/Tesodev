@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	_ "go.mongodb.org/mongo-driver/mongo"
 	"net/http"
+	"tesodev-korpes/OrderService/internal/types"
 )
 
 type Handler struct {
@@ -33,7 +34,7 @@ func (h *Handler) GetByID(c echo.Context) error {
 }
 
 func (h *Handler) Create(c echo.Context) error {
-	var order interface{}
+	var order *types.Order
 
 	if err := c.Bind(&order); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -43,10 +44,20 @@ func (h *Handler) Create(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+	//change the structure to;
+	//this endpoint should return that response when 200;
+	//{
+	//	"message" : "Succeeded!",
+	//	"creadtedId" : "550e8400-e29b-41d4-a716-446655440000"
+	//}
+	//manage somehow (hint : look for a way to get that id from the mongo method that you will be using)
+	/*if err := h.service.Create(c.Request().Context(), customer); err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}*/
 
 	response := map[string]interface{}{
-		"message":    "Order created!",
-		"creadtedId": id.Hex(),
+		"message":    "Successed!",
+		"creadtedId": id,
 	}
 
 	return c.JSON(http.StatusCreated, response)
@@ -54,26 +65,30 @@ func (h *Handler) Create(c echo.Context) error {
 
 func (h *Handler) Update(c echo.Context) error {
 	id := c.Param("id")
-	var update interface{}
-	if err := c.Bind(&update); err != nil {
+	var order types.OrderUpdateModel
+	if err := c.Bind(&order); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	if err := h.service.Update(c.Request().Context(), id, update); err != nil {
+	if err := h.service.Update(c.Request().Context(), id, order); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusOK, "Order updated successfully")
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "Order updated successfully",
+	})
 }
 
 func (h *Handler) PartialUpdate(c echo.Context) error {
 	id := c.Param("id")
-	var update interface{}
-	if err := c.Bind(&update); err != nil {
+	var order types.OrderUpdateModel
+	if err := c.Bind(&order); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	if err := h.service.Update(c.Request().Context(), id, update); err != nil {
+	if err := h.service.Update(c.Request().Context(), id, order); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusOK, "Order partially updated successfully")
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "Order partially updated successfully",
+	})
 }
 
 func (h *Handler) Delete(c echo.Context) error {
@@ -81,5 +96,7 @@ func (h *Handler) Delete(c echo.Context) error {
 	if err := h.service.Delete(c.Request().Context(), id); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusOK, "Order deleted successfully")
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "Order deleted successfully",
+	})
 }
