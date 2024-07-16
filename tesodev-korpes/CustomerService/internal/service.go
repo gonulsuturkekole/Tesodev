@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"tesodev-korpes/CustomerService/internal/types"
+	"time"
 )
 
 type Service struct {
@@ -17,6 +18,7 @@ func NewService(repo *Repository) *Service {
 }
 
 func (s *Service) GetByID(ctx context.Context, id string) (*types.Customer, error) {
+	//var customer *types.Customer
 	customer, err := s.repo.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -37,6 +39,8 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Customer, erro
 func (s *Service) Create(ctx context.Context, customer *types.Customer) (string, error) {
 	// Generate a new UUID
 	customID := uuid.New().String()
+	now := time.Now().Local()
+	customer.CreatedAt = now
 	// Set the customer's ID to the generated UUID
 	customer.Id = customID
 	// Insert the customer data into MongoDB
@@ -50,6 +54,7 @@ func (s *Service) Create(ctx context.Context, customer *types.Customer) (string,
 
 func (s *Service) Update(ctx context.Context, id string, customerUpdateModel types.CustomerUpdateModel) error {
 	customer, err := s.GetByID(ctx, id)
+	now := time.Now().Local()
 	if err != nil {
 		return err
 	}
@@ -57,6 +62,7 @@ func (s *Service) Update(ctx context.Context, id string, customerUpdateModel typ
 	customer.FirstName = customerUpdateModel.FirstName
 	customer.LastName = customerUpdateModel.LastName
 	customer.Phone = customerUpdateModel.Phone
+	customer.UpdatedAt = now
 	return s.repo.Update(ctx, id, customer)
 }
 

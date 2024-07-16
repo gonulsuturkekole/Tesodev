@@ -72,7 +72,9 @@ func (h *Handler) Update(c echo.Context) error {
 	if err := h.service.Update(c.Request().Context(), id, customer); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusOK, "Customer updated successfully")
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "Customer updated successfully",
+	})
 }
 
 func (h *Handler) PartialUpdate(c echo.Context) error {
@@ -84,13 +86,16 @@ func (h *Handler) PartialUpdate(c echo.Context) error {
 	if err := h.service.Update(c.Request().Context(), id, customer); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusOK, "Customer partially updated successfully")
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "Customer partially updated successfully",
+	})
 }
-
 func (h *Handler) Delete(c echo.Context) error {
 	id := c.Param("id")
 	if err := h.service.Delete(c.Request().Context(), id); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusOK, "Customer deleted successfully")
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "Customer deleted successfully",
+	})
 }
