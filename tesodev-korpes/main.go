@@ -32,7 +32,7 @@ func main() {
 	case "order":
 		orderCmd.BootOrderService(client, e)
 	case "both":
-		go cmd.BootCustomerService(client, e) //  allowing both cmd.BootCustomerService(client, e)
+		cmd.BootCustomerService(client, e) //  allowing both cmd.BootCustomerService(client, e)
 		// and BootOrderService(client, e) functions to run simultaneously in the 'both' case
 		go orderCmd.BootOrderService(client, e)
 	default:

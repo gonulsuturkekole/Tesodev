@@ -10,7 +10,7 @@ type OrderConfig struct {
 
 var cfgs = map[string]OrderConfig{
 	"prod": {
-		Port: ":8002",
+		Port: ":8001",
 		// This setup supports the independent operation of each service
 		//whether they run on the same server or different servers
 		// optimizing application performance and management.
@@ -23,7 +23,7 @@ var cfgs = map[string]OrderConfig{
 		},
 	},
 	"qa": {
-		Port: ":8002",
+		Port: ":8001",
 		DbConfig: struct {
 			DBName  string
 			ColName string
@@ -33,7 +33,7 @@ var cfgs = map[string]OrderConfig{
 		},
 	},
 	"dev": {
-		Port: ":8002",
+		Port: ":8001",
 		DbConfig: struct {
 			DBName  string
 			ColName string

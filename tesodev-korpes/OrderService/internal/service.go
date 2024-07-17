@@ -2,8 +2,9 @@ package internal
 
 import (
 	"context"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/google/uuid"
 	"tesodev-korpes/OrderService/internal/types"
+	"time"
 )
 
 type Service struct {
@@ -33,20 +34,38 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Order, error) 
 	return order, nil
 }
 
-func (s *Service) Create(ctx context.Context, order interface{}) (primitive.ObjectID, error) {
+func (s *Service) Create(ctx context.Context, order *types.Order) (string, error) {
+	// Generate a new UUID
+	orderID := uuid.New().String()
+	now := time.Now().Local()
 
-	res, err := s.repo.Create(ctx, order)
+	// Set the customer's ID to the generated UUID
+	order.Id = orderID
+	order.CreatedAt = now
+	// Insert the customer data into MongoDB
+	_, err := s.repo.Create(ctx, order)
 	if err != nil {
-		return primitive.NilObjectID, err
+		return "", err
 	}
-
-	id := res.InsertedID.(primitive.ObjectID)
-	return id, nil
-
+	// Return the generated ID if the insertion is successful
+	return orderID, nil
 }
 
-func (s *Service) Update(ctx context.Context, id string, update interface{}) error {
-	return s.repo.Update(ctx, id, update)
+func (s *Service) Update(ctx context.Context, id string, orderUpdateModel types.OrderUpdateModel) error {
+	order, err := s.GetByID(ctx, id)
+	now := time.Now().Local()
+	if err != nil {
+		return err
+	}
+
+	order.OrderName = orderUpdateModel.OrderName
+	order.Price = orderUpdateModel.Price
+	order.Stock = orderUpdateModel.Stock
+	order.ShippingAddress = orderUpdateModel.ShippingAddress
+	order.PaymentMethod = orderUpdateModel.PaymentMethod
+	order.UpdatedAt = now
+	return s.repo.Update(ctx, id, order)
+
 }
 
 func (s *Service) Delete(ctx context.Context, id string) error {
