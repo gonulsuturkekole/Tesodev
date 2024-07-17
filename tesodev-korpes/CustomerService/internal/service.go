@@ -2,6 +2,8 @@ package internal
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"tesodev-korpes/CustomerService/internal/types"
 	"time"
@@ -32,11 +34,18 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Customer, erro
 	// 4) add an additional field and use maps
 	// 5) add an additional field and use arrays
 	// 6) manipulate an existing data to see how pointers and values work
+	// Manipulate data using pointer
+
 	return customer, nil
 }
 
 // Create method creates a new customer with a custom UUID as the ID
 func (s *Service) Create(ctx context.Context, customer *types.Customer) (string, error) {
+	// Check if the customer data is valid
+	if err := validateCustomer(customer); err != nil {
+		fmt.Println("Invalid customer data:", err)
+		return "", err
+	}
 	// Generate a new UUID
 	customID := uuid.New().String()
 	now := time.Now().Local()
@@ -44,6 +53,7 @@ func (s *Service) Create(ctx context.Context, customer *types.Customer) (string,
 	// Set the customer's ID to the generated UUID
 	customer.Id = customID
 	// Insert the customer data into MongoDB
+
 	_, err := s.repo.Create(ctx, customer)
 	if err != nil {
 		return "", err
@@ -68,4 +78,35 @@ func (s *Service) Update(ctx context.Context, id string, customerUpdateModel typ
 }
 func (s *Service) Delete(ctx context.Context, id string) error {
 	return s.repo.Delete(ctx, id)
+}
+
+func containsDigit(s string) bool {
+	for i := 0; i < len(s); i++ {
+		if s[i] >= '0' && s[i] <= '9' {
+			return true
+		}
+	}
+	return false
+}
+
+// startsWithUpperCase checks if a string starts with an uppercase letter.
+func startsWithUpperCase(s string) bool {
+	if len(s) == 0 {
+		return false
+	}
+	return s[0] >= 'A' && s[0] <= 'Z'
+}
+
+// validateCustomer checks if the customer data is valid when it's created.
+// 2) do something with switch-case
+func validateCustomer(customer *types.Customer) error {
+	switch {
+	case containsDigit(customer.FirstName):
+		return errors.New("First name contains a number")
+	case !startsWithUpperCase(customer.FirstName):
+		return errors.New("First name does not start with an uppercase letter")
+	default:
+		fmt.Printf("Customer '%s' is valid.\n", customer.FirstName)
+	}
+	return nil
 }
