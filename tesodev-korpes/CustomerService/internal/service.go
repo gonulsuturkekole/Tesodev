@@ -49,6 +49,7 @@ func (s *Service) Create(ctx context.Context, customer *types.Customer) (string,
 }
 
 func (s *Service) Update(ctx context.Context, id string, customerUpdateModel types.CustomerUpdateModel) error {
+	// Create an update document
 	customer, err := s.GetByID(ctx, id)
 	if err != nil {
 		return err
@@ -59,7 +60,6 @@ func (s *Service) Update(ctx context.Context, id string, customerUpdateModel typ
 	customer.Phone = customerUpdateModel.Phone
 	return s.repo.Update(ctx, id, customer)
 }
-
 func (s *Service) Delete(ctx context.Context, id string) error {
 	return s.repo.Delete(ctx, id)
 }
