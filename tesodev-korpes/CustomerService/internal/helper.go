@@ -10,9 +10,13 @@ import (
 // the beginning
 func ToCustomerResponse(customer *types.Customer) *types.CustomerResponseModel {
 	return &types.CustomerResponseModel{
-		FirstName: customer.FirstName,
-		LastName:  customer.LastName,
-		Email:     customer.Email,
+		FirstName:      customer.FirstName,
+		LastName:       customer.LastName,
+		Email:          customer.Email,
+		Phone:          customer.Phone,
+		Address:        customer.Address,
+		AdditionalInfo: customer.AdditionalInfo,
+		ContactOption:  customer.ContactOption,
 	}
-	//return nil
+
 }
