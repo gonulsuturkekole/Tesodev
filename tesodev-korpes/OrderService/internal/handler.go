@@ -44,16 +44,6 @@ func (h *Handler) Create(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	//change the structure to;
-	//this endpoint should return that response when 200;
-	//{
-	//	"message" : "Succeeded!",
-	//	"creadtedId" : "550e8400-e29b-41d4-a716-446655440000"
-	//}
-	//manage somehow (hint : look for a way to get that id from the mongo method that you will be using)
-	/*if err := h.service.Create(c.Request().Context(), customer); err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}*/
 
 	response := map[string]interface{}{
 		"message":    "Successed!",
