@@ -20,9 +20,11 @@ func NewHandler(e *echo.Echo, service *Service) {
 	g.PUT("/:id", handler.Update)
 	g.PATCH("/:id", handler.PartialUpdate)
 	g.DELETE("/:id", handler.Delete)
+	e.GET("/customers/", handler.Get)
 }
 
 func (h *Handler) GetByID(c echo.Context) error {
+	//name := c.QueryParam("name")
 	id := c.Param("id")
 	customer, err := h.service.GetByID(c.Request().Context(), id)
 	if err != nil {
@@ -31,6 +33,21 @@ func (h *Handler) GetByID(c echo.Context) error {
 
 	customerResponse := ToCustomerResponse(customer)
 	return c.JSON(http.StatusOK, customerResponse)
+}
+
+func (h *Handler) Get(c echo.Context) error {
+	name := c.QueryParam("name")
+	lastName := c.QueryParam("last_name")
+	age := c.QueryParam("age")
+
+	customers, err := h.service.Get(c.Request().Context(), name, lastName, age)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "error fetching customers"})
+	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "customer fetch",
+		"data":    customers,
+	})
 }
 
 func (h *Handler) Create(c echo.Context) error {
@@ -44,8 +61,8 @@ func (h *Handler) Create(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	response := map[string]interface{}{
-		"message":    "Successed!",
-		"creadtedId": id,
+		"message":   "Successed!",
+		"createdId": id,
 	}
 	return c.JSON(http.StatusCreated, response)
 }

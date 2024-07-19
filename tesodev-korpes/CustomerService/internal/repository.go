@@ -3,8 +3,11 @@ package internal
 import (
 	"context"
 	"fmt"
+	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"net/http"
 	"tesodev-korpes/CustomerService/internal/types"
 )
 
@@ -36,6 +39,33 @@ func (r *Repository) FindByID(ctx context.Context, id string) (*types.Customer, 
 		}
 	}
 	return customer, nil
+}
+
+func (r *Repository) Get(ctx context.Context, name string, lastName string, age string) ([]types.Customer, error) {
+	var customerModels []types.Customer
+
+	opts := options.Find().SetLimit(5)
+
+	filter := bson.D{
+		{"$or", bson.A{
+			bson.D{{"age", bson.D{{"$gt", age}}}},
+			bson.D{{"first_ame", name}},
+			bson.D{{"last_name", lastName}},
+		}},
+	}
+
+	cursor, err := r.collection.Find(ctx, filter, opts)
+	if err != nil {
+
+		return nil, echo.NewHTTPError(http.StatusBadRequest, map[string]string{"message": "could not get any customers"})
+	}
+	defer cursor.Close(ctx)
+
+	if err := cursor.All(ctx, &customerModels); err != nil {
+		return nil, echo.NewHTTPError(http.StatusInternalServerError, map[string]string{"message": "error decoding customers"})
+	}
+
+	return customerModels, nil
 }
 
 // Create method in Repository inserts a customer into MongoDB
