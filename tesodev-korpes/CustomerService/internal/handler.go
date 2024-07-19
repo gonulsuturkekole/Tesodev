@@ -20,6 +20,9 @@ func NewHandler(e *echo.Echo, service *Service) {
 	g.PUT("/:id", handler.Update)
 	g.PATCH("/:id", handler.PartialUpdate)
 	g.DELETE("/:id", handler.Delete)
+	///////////////////
+	e.GET("/customers", handler.Get)
+
 }
 
 func (h *Handler) GetByID(c echo.Context) error {
@@ -31,6 +34,18 @@ func (h *Handler) GetByID(c echo.Context) error {
 
 	customerResponse := ToCustomerResponse(customer)
 	return c.JSON(http.StatusOK, customerResponse)
+}
+
+// ////////////////
+func (h *Handler) Get(c echo.Context) error {
+	customers, err := h.service.Get(c.Request().Context())
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "error fetching customers"})
+	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "customer fetch",
+		"data":    customers,
+	})
 }
 
 func (h *Handler) Create(c echo.Context) error {

@@ -75,18 +75,18 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Customer, erro
 		switch customer.MembershipType {
 		case "standard":
 			customer.AdditionalInfo["membership_type"] = "Standard"
-			customer.AdditionalInfo["free shipping"] = "1"
+			customer.AdditionalInfo["free_shipping"] = "1"
 		case "premium":
 			customer.AdditionalInfo["membership_type"] = "Premium"
-			customer.AdditionalInfo["free shipping"] = "5"
+			customer.AdditionalInfo["free_shipping"] = "5"
 		case "gold":
 			customer.AdditionalInfo["membership_type"] = "Gold"
-			customer.AdditionalInfo["free shipping"] = "100"
-			customer.AdditionalInfo["priority in customer line"] = "yes"
+			customer.AdditionalInfo["free_shipping"] = "100"
+			customer.AdditionalInfo["priority_in_customer_line"] = "yes"
 			customer.AdditionalInfo["discover"] = "%5"
 		default:
 			customer.AdditionalInfo["membership_type"] = "None"
-			customer.AdditionalInfo["free shipping"] = "0"
+			customer.AdditionalInfo["free_shipping"] = "0"
 		}
 		fmt.Println("Customer ID:", id)
 		fmt.Println("Customer Membership Type:", customer.MembershipType)
@@ -121,6 +121,11 @@ func (s *Service) Create(ctx context.Context, customer *types.Customer) (string,
 	}
 	// Return the generated ID if the insertion is successful
 	return customID, nil
+}
+
+// /////////////
+func (s *Service) Get(ctx context.Context) ([]types.Customer, error) {
+	return s.repo.Get(ctx)
 }
 
 func (s Service) Update1(ctx context.Context, customer *types.Customer) error {

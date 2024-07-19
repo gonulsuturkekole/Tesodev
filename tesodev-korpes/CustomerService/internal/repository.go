@@ -3,8 +3,10 @@ package internal
 import (
 	"context"
 	"fmt"
+	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"net/http"
 	"tesodev-korpes/CustomerService/internal/types"
 )
 
@@ -36,6 +38,23 @@ func (r *Repository) FindByID(ctx context.Context, id string) (*types.Customer, 
 		}
 	}
 	return customer, nil
+}
+
+func (r *Repository) Get(ctx context.Context) ([]types.Customer, error) {
+	var customerModels []types.Customer
+	//
+	cursor, err := r.collection.Find(ctx, bson.M{})
+	if err != nil {
+
+		return nil, echo.NewHTTPError(http.StatusBadRequest, map[string]string{"message": "could not get any customers"})
+	}
+	defer cursor.Close(ctx)
+
+	if err := cursor.All(ctx, &customerModels); err != nil {
+		return nil, echo.NewHTTPError(http.StatusInternalServerError, map[string]string{"message": "error decoding customers"})
+	}
+
+	return customerModels, nil
 }
 
 // Create method in Repository inserts a customer into MongoDB
