@@ -160,6 +160,11 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 	return s.repo.Delete(ctx, id)
 }
 
+func (s *Service) GetCustomers(ctx context.Context, firstName string, ageGreaterThan string, ageLessThan string) ([]types.Customer, error) {
+	return s.repo.GetCustomersByFilter(ctx, firstName, ageGreaterThan, ageLessThan)
+
+}
+
 func containsDigit(s string) bool {
 	for i := 0; i < len(s); i++ {
 		if s[i] >= '0' && s[i] <= '9' {

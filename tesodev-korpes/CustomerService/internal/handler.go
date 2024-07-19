@@ -20,6 +20,8 @@ func NewHandler(e *echo.Echo, service *Service) {
 	g.PUT("/:id", handler.Update)
 	g.PATCH("/:id", handler.PartialUpdate)
 	g.DELETE("/:id", handler.Delete)
+	e.GET("/customers", handler.GetCustomersByFilter) // Filtreleme için GET endpoint'i
+
 }
 
 func (h *Handler) GetByID(c echo.Context) error {
@@ -84,5 +86,23 @@ func (h *Handler) Delete(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, map[string]string{
 		"message": "Customer deleted successfully",
+	})
+}
+func (h *Handler) GetCustomersByFilter(c echo.Context) error {
+	firstName := c.QueryParam("first_name")
+	ageGreaterThan := c.QueryParam("age_greater_than")
+	ageLessThan := c.QueryParam("age_less_than")
+
+	// Call the service method to find customers by first name
+	customers, err := h.service.GetCustomers(c.Request().Context(), firstName, ageGreaterThan, ageLessThan)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Error fetching customers"})
+	}
+	if len(customers) == 0 {
+		return c.JSON(http.StatusNotFound, map[string]string{"message": "No customers found"})
+	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "customer fetch",
+		"data":    customers,
 	})
 }
