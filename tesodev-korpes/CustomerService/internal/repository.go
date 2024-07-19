@@ -59,6 +59,15 @@ func (r *Repository) Delete(ctx context.Context, id string) error {
 func (r *Repository) GetCustomersByFilter(ctx context.Context, firstName string, ageGreaterThan string, ageLessThan string) ([]types.Customer, error) {
 	var customers []types.Customer
 	// Create a filter to match the first name
+	//opts := options.Find().SetLimit(5)
+
+	//filter := bson.D{
+	//{"$or", bson.A{
+	//bson.D{{"age", bson.D{{"$gt", age}}}},
+	//bson.D{{"first_ame", name}},
+	//bson.D{{"last_name", lastName}},
+	//}},
+	//}
 	filter := bson.M{}
 	if firstName != "" {
 		filter["first_name"] = firstName

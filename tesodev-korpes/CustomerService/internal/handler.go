@@ -20,7 +20,7 @@ func NewHandler(e *echo.Echo, service *Service) {
 	g.PUT("/:id", handler.Update)
 	g.PATCH("/:id", handler.PartialUpdate)
 	g.DELETE("/:id", handler.Delete)
-	e.GET("/customers", handler.GetCustomersByFilter) // Filtreleme için GET endpoint'i
+	e.GET("/customers", handler.GetCustomersByFilter) // Get endpoint for filter
 
 }
 
