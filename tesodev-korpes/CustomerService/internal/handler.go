@@ -88,6 +88,7 @@ func (h *Handler) Delete(c echo.Context) error {
 		"message": "Customer deleted successfully",
 	})
 }
+
 func (h *Handler) GetCustomersByFilter(c echo.Context) error {
 	firstName := c.QueryParam("first_name")
 	ageGreaterThan := c.QueryParam("age_greater_than")

@@ -109,16 +109,6 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Customer, erro
 	return customer, nil
 }
 
-func (s *Service) Get(ctx context.Context, name string, lastName string, age string) ([]types.Customer, error) {
-
-	customer, err := s.repo.Get(ctx, name, lastName, age)
-	if err != nil {
-		return nil, err
-	}
-	return customer, nil
-
-}
-
 // Create method creates a new customer with a custom UUID as the ID
 func (s *Service) Create(ctx context.Context, customer *types.Customer) (string, error) {
 
