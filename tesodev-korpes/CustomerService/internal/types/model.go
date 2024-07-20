@@ -9,7 +9,7 @@ type Customer struct {
 	FirstName      string            `bson:"first_name" json:"first_name"`
 	LastName       string            `bson:"last_name" json:"last_name"`
 	Age            string            `bson:"age" json:"age"`
-	Email          string            `bson:"email" json:"email"`
+	Email          string            `bson:"email" json:"email" validate:"required,email"`
 	Phone          string            `bson:"phone" json:"phone"`
 	Address        string            `bson:"address" json:"address"`
 	City           string            `bson:"city" json:"city"`

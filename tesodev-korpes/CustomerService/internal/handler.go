@@ -8,11 +8,15 @@ import (
 )
 
 type Handler struct {
-	service *Service
+	service  *Service
+	validate *validator.Validate
 }
 
 func NewHandler(e *echo.Echo, service *Service) {
-	handler := &Handler{service: service}
+
+	handler := &Handler{service: service, validate: validator.New()}
+
+	//handler.validate.RegisterValidation("email", validateEmail)
 
 	g := e.Group("/customer")
 	g.GET("/:id", handler.GetByID)
@@ -39,6 +43,9 @@ func (h *Handler) Create(c echo.Context) error {
 	var customer *types.Customer
 
 	if err := c.Bind(&customer); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	if err := h.validate.Struct(customer); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	id, err := h.service.Create(c.Request().Context(), customer)
