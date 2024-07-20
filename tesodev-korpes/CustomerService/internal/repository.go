@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"net/http"
 	"tesodev-korpes/CustomerService/internal/types"
 )
@@ -59,8 +60,7 @@ func (r *Repository) Delete(ctx context.Context, id string) error {
 func (r *Repository) GetCustomersByFilter(ctx context.Context, firstName string, ageGreaterThan string, ageLessThan string) ([]types.Customer, error) {
 	var customers []types.Customer
 	// Create a filter to match the first name
-	//opts := options.Find().SetLimit(5)
-
+	opts := options.Find().SetLimit(5)
 	//filter := bson.D{
 	//{"$or", bson.A{
 	//bson.D{{"age", bson.D{{"$gt", age}}}},
@@ -93,7 +93,7 @@ func (r *Repository) GetCustomersByFilter(ctx context.Context, firstName string,
 	}
 	fmt.Printf("Filter: %v\n", filter) // Log the filter to see what is being sent
 	// Perform the query
-	cursor, err := r.collection.Find(ctx, filter)
+	cursor, err := r.collection.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, map[string]string{"message": "could not get any customers"})
 	}
