@@ -10,7 +10,6 @@ type Customer struct {
 	LastName       string            `bson:"last_name" json:"last_name"`
 	Age            string            `bson:"age" json:"age"`
 	Email          string            `bson:"email" json:"email"`
-	Age            string            `bson:"age" json:"age"`
 	Phone          string            `bson:"phone" json:"phone"`
 	Address        string            `bson:"address" json:"address"`
 	City           string            `bson:"city" json:"city"`

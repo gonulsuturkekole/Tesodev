@@ -69,6 +69,14 @@ func (r *Repository) GetCustomersByFilter(ctx context.Context, firstName string,
 	//}},
 	//}
 	//filters
+
+	/*filter := bson.M{
+		"$or": []bson.M{
+			{"first_name": firstName},
+			{"$and":[{"age": bson.M{"$gt": ageGreaterThan}},{"age": bson.M{"$lt": ageLessThan}}
+			]},
+		},
+	} */
 	filter := bson.M{}
 	if firstName != "" {
 		filter["first_name"] = firstName
