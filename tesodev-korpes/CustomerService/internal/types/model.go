@@ -6,9 +6,9 @@ import (
 
 type Customer struct {
 	Id             string            `bson:"_id" json:"id"`
-	FirstName      string            `bson:"first_name" json:"first_name"`
-	LastName       string            `bson:"last_name" json:"last_name"`
-	Age            string            `bson:"age" json:"age"`
+	FirstName      string            `bson:"first_name" json:"first_name" validate:"required"`
+	LastName       string            `bson:"last_name" json:"last_name" validate:"required"`
+	Age            string            `bson:"age" json:"age" validate:"required,ageValidation"`
 	Email          string            `bson:"email" json:"email" validate:"required,email"`
 	Phone          string            `bson:"phone" json:"phone"`
 	Address        string            `bson:"address" json:"address"`

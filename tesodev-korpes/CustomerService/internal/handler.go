@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	_ "go.mongodb.org/mongo-driver/mongo"
 	"net/http"
@@ -16,7 +17,8 @@ func NewHandler(e *echo.Echo, service *Service) {
 
 	handler := &Handler{service: service, validate: validator.New()}
 
-	//handler.validate.RegisterValidation("email", validateEmail)
+	handler.validate.RegisterValidation("ageValidation", ageValidation)
+	handler.validate.RegisterValidation("email", validateEmail)
 
 	g := e.Group("/customer")
 	g.GET("/:id", handler.GetByID)
@@ -45,8 +47,31 @@ func (h *Handler) Create(c echo.Context) error {
 	if err := c.Bind(&customer); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	if err := h.validate.Struct(customer); err != nil {
+	/*if err := h.validate.Struct(customer); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
+	}*/
+
+	// Validate customer object
+	if err := h.validate.Struct(customer); err != nil {
+		// Handle validation errors
+		validationErrors := err.(validator.ValidationErrors)
+		errorMessages := make(map[string]string)
+
+		for _, fieldError := range validationErrors {
+			switch fieldError.Tag() {
+			case "email":
+				errorMessages[fieldError.Field()] = "Email must contain an '@' symbol"
+			case "ageValidation":
+				errorMessages[fieldError.Field()] = "Age must be a number greater than or equal to 18"
+			default:
+				errorMessages[fieldError.Field()] = "Invalid value"
+			}
+		}
+
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": "Validation failed",
+			"errors":  errorMessages,
+		})
 	}
 	id, err := h.service.Create(c.Request().Context(), customer)
 	if err != nil {
