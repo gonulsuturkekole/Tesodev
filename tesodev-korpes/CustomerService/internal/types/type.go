@@ -35,5 +35,4 @@ type CustomerUpdateModel struct {
 	ContactOption  []string          `bson:"contact_option" json:"contact_option"`
 	CreatedAt      time.Time         `bson:"created_at" json:"created_at"`
 	UpdatedAt      time.Time         `bson:"updated_at" json:"updated_at"`
-	Age            string            `bson:"age" json:"age"`
 }
