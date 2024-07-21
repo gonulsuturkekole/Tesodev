@@ -48,6 +48,15 @@ func (h *Handler) Get(c echo.Context) error {
 	})
 }
 
+func (h *Handler) GetCustomersWithSecondLetterA(c echo.Context) error {
+	ctx := c.Request().Context()
+	customers, err := h.service.GetCustomersWithSecondLetterA(ctx)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "could not get customers"})
+	}
+	return c.JSON(http.StatusOK, customers)
+}
+
 func (h *Handler) Create(c echo.Context) error {
 	var customer *types.Customer
 

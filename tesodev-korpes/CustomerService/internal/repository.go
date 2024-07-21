@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"net/http"
 	"tesodev-korpes/CustomerService/internal/types"
 )
@@ -18,6 +19,22 @@ func NewRepository(col *mongo.Collection) *Repository {
 	return &Repository{
 		collection: col,
 	}
+}
+func (r *Repository) GetCustomersWithSecondLetterA(ctx context.Context) ([]types.Customer, error) {
+	filter := bson.M{"firstName": bson.M{"$regex": "^.{1}a"}}
+	opts := options.Find().SetLimit(5)
+	cursor, err := r.collection.Find(ctx, filter, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var customers []types.Customer
+	if err = cursor.All(ctx, &customers); err != nil {
+		return nil, err
+	}
+
+	return customers, nil
 }
 
 func (r *Repository) FindByID(ctx context.Context, id string) (*types.Customer, error) {

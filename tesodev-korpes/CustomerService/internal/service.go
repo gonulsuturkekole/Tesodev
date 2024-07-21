@@ -21,6 +21,10 @@ func NewService(repo *Repository) *Service {
 	}
 }
 
+func (s *Service) GetCustomersWithSecondLetterA(ctx context.Context) ([]types.Customer, error) {
+	return s.repo.GetCustomersWithSecondLetterA(ctx)
+}
+
 func (s *Service) GetByID(ctx context.Context, id string) (*types.Customer, error) {
 	customer, err := s.repo.FindByID(ctx, id)
 	if err != nil {

@@ -1,16 +1,45 @@
 package main
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	_ "github.com/labstack/echo/v4"
+	"net/http"
 	"os"
+	"sync"
 	"tesodev-korpes/CustomerService/cmd"
 	orderCmd "tesodev-korpes/OrderService/cmd"
 	"tesodev-korpes/pkg"
 	"tesodev-korpes/shared/config"
+	"time"
 )
 
+type RequestProcessor struct {
+	counter int
+	mutex   sync.Mutex
+}
+
+// Increment increments the counter
+func (rp *RequestProcessor) Increment() {
+	rp.mutex.Lock()
+	defer rp.mutex.Unlock()
+	rp.counter++
+}
+
+// GetCounter returns the current value of the counter
+func (rp *RequestProcessor) GetCounter() int {
+	rp.mutex.Lock()
+	defer rp.mutex.Unlock()
+	return rp.counter
+}
+
 func main() {
+
+	http.HandleFunc("/", handler)
+
+	fmt.Println("Server started at :8001")
+	http.ListenAndServe(":8001", nil)
+
 	//todo : what is dev,qa,prod ? explain why we are using them in the lecture
 	dbConf := config.GetDBConfig("dev")
 
@@ -20,6 +49,7 @@ func main() {
 	}
 
 	e := echo.New()
+
 	if len(os.Args) < 2 {
 		panic("Please provide a service to start: customer, order, or both")
 	}
@@ -55,3 +85,17 @@ func main() {
 //orderCol, err := pkg.GetMongoCollection(client, "tesodev", "order")
 //if err != nil {
 //	panic(err)
+
+func handler(w http.ResponseWriter, r *http.Request) {
+	// Scoped: create a new RequestProcessor for each request
+	processor := &RequestProcessor{}
+
+	// Simulate some work
+	for i := 0; i < 10; i++ {
+		processor.Increment()
+		time.Sleep(10 * time.Millisecond) // Simulate work by sleeping
+	}
+
+	counterValue := processor.GetCounter()
+	fmt.Fprintf(w, "Processed request with counter value: %d", counterValue)
+}
