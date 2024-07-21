@@ -20,6 +20,7 @@ func main() {
 	}
 
 	e := echo.New()
+
 	if len(os.Args) < 2 {
 		panic("Please provide a service to start: customer, order, or both")
 	}
