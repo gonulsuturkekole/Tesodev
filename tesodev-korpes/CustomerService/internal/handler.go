@@ -27,7 +27,6 @@ func NewHandler(e *echo.Echo, service *Service) {
 	g.PATCH("/:id", handler.PartialUpdate)
 	g.DELETE("/:id", handler.Delete)
 	e.GET("/customers", handler.GetCustomersByFilter) // Get endpoint for filter
-
 }
 
 func (h *Handler) GetByID(c echo.Context) error {

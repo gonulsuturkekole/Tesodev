@@ -138,20 +138,9 @@ func (s *Service) Create(ctx context.Context, customer *types.Customer) (string,
 	return customID, nil
 }
 
-// /////////////
-func (s *Service) Get(ctx context.Context) ([]types.Customer, error) {
-	return s.repo.Get(ctx)
-}
-
-func (s Service) Update1(ctx context.Context, customer *types.Customer) error {
-	customer.FirstName = "Gonul"
-	return nil
-
-}
 func (s *Service) Update(ctx context.Context, id string, customerUpdateModel types.CustomerUpdateModel) error {
 	// Create an update document
 	customer, err := s.GetByID(ctx, id)
-	s.Update1(ctx, customer)
 	now := time.Now().Local()
 	if err != nil {
 		return err
