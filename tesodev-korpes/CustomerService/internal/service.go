@@ -107,7 +107,7 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Customer, erro
 		fmt.Println("Additional Info:", customer.AdditionalInfo)
 	}
 
-	customer.ContactOption = append(customer.ContactOption)
+	customer.ContactOption = append(customer.ContactOption, "hi")
 	//customer.ContactOption = []string{""}
 
 	return customer, nil
@@ -167,6 +167,11 @@ func (s *Service) Update(ctx context.Context, id string, customerUpdateModel typ
 }
 func (s *Service) Delete(ctx context.Context, id string) error {
 	return s.repo.Delete(ctx, id)
+}
+
+func (s *Service) GetCustomers(ctx context.Context, firstName string, ageGreaterThan string, ageLessThan string) ([]types.Customer, error) {
+	return s.repo.GetCustomersByFilter(ctx, firstName, ageGreaterThan, ageLessThan)
+
 }
 
 func containsDigit(s string) bool {
