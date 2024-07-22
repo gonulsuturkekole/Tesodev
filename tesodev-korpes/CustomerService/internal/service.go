@@ -114,10 +114,10 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Customer, erro
 }
 
 // Create method creates a new customer with a custom UUID as the ID
-func (s *Service) Create(ctx context.Context, customer *types.Customer) (string, error) {
+func (s *Service) Create(ctx context.Context, customerRequestModel types.CustomerRequestModel) (string, error) {
 
 	// Check if the customer data is valid
-	if err := validateCustomer(customer); err != nil {
+	if err := validateCustomer(customerRequestModel); err != nil {
 		fmt.Println("Invalid customer data:", err)
 		return "", err
 	}
@@ -125,10 +125,20 @@ func (s *Service) Create(ctx context.Context, customer *types.Customer) (string,
 	// Generate a new UUID
 	customID := uuid.New().String()
 	now := time.Now().Local()
-	customer.CreatedAt = now
+	customerRequestModel.CreatedAt = now
 	// Set the customer's ID to the generated UUID
-	customer.Id = customID
+	//customerRequestModel.Id = customID
 	// Insert the customer data into MongoDB
+
+	customer := &types.Customer{
+		FirstName: customerRequestModel.FirstName,
+		LastName:  customerRequestModel.LastName,
+		Age:       customerRequestModel.Age,
+		Email:     customerRequestModel.Email,
+		CreatedAt: customerRequestModel.CreatedAt,
+		Id:        customID,
+	}
+	//customer.Id = customID
 
 	_, err := s.repo.Create(ctx, customer)
 	if err != nil {
@@ -183,7 +193,7 @@ func startsWithUpperCase(s string) bool {
 
 // validateCustomer checks if the customer data is valid when it's created.
 // 2) do something with switch-case
-func validateCustomer(customer *types.Customer) error {
+func validateCustomer(customer types.CustomerRequestModel) error {
 	switch {
 	case containsDigit(customer.FirstName):
 		return errors.New("First name contains a number")

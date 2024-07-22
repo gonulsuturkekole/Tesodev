@@ -2,12 +2,13 @@ package types
 
 import "time"
 
+// CustomerRequestModel represents a model for customer requests.
 type CustomerRequestModel struct {
-	Id        string `bson:"_id" json:"id"`
-	FirstName string `bson:"first_name" json:"first_name"`
-	LastName  string `bson:"last_name" json:"last_name"`
-	Email     string `bson:"email" json:"email"`
-	Age       string `bson:"age" json:"age"`
+	FirstName string    `bson:"first_name" json:"first_name" validate:"required"`
+	LastName  string    `bson:"last_name" json:"last_name" validate:"required"`
+	Email     string    `bson:"email" json:"email" validate:"required,email"`
+	Age       int       `bson:"age" json:"age" validate:"gte=18,lte=130"`
+	CreatedAt time.Time `bson:"created_at" json:"created_at"`
 }
 
 type CustomerResponseModel struct {
@@ -18,13 +19,13 @@ type CustomerResponseModel struct {
 	Address        string            `bson:"address" json:"address"`
 	AdditionalInfo map[string]string `bson:"additional_info" json:"additional_info"`
 	ContactOption  []string          `bson:"contact_option" json:"contact_option"`
-	Age            string            `bson:"age" json:"age"`
+	Age            int               `bson:"age" json:"age"`
 }
 
 type CustomerUpdateModel struct {
 	FirstName      string            `bson:"first_name" json:"first_name"`
 	LastName       string            `bson:"last_name" json:"last_name"`
-	Age            string            `bson:"age" json:"age"`
+	Age            int               `bson:"age" json:"age"`
 	Phone          string            `bson:"phone" json:"phone"`
 	Address        string            `bson:"address" json:"address"`
 	City           string            `bson:"city" json:"city"`
@@ -36,3 +37,12 @@ type CustomerUpdateModel struct {
 	CreatedAt      time.Time         `bson:"created_at" json:"created_at"`
 	UpdatedAt      time.Time         `bson:"updated_at" json:"updated_at"`
 }
+
+/*type  QueryParams interface {
+
+	firstName string
+	age_greater_than int
+	age_less_than    int
+
+}
+*/

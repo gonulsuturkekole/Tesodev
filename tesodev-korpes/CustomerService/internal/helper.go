@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"fmt"
+	"github.com/go-playground/validator/v10"
 	"tesodev-korpes/CustomerService/internal/types"
 )
 
@@ -19,4 +21,25 @@ func ToCustomerResponse(customer *types.Customer) *types.CustomerResponseModel {
 		ContactOption:  customer.ContactOption,
 	}
 
+}
+
+/*
+func ValidateAge(r *types.CustomerRequestModel) bool{
+
+	age := r.Age
+	if age == "" {
+	return nil}
+
+}
+*/
+
+func Validation(customerRequestModel *types.CustomerRequestModel) {
+
+	var validate *validator.Validate
+	errs := validate.Var(customerRequestModel.Age, "gte=18")
+
+	if errs != nil {
+		fmt.Println(errs) // output: Key: "" aError:Field validtion for "" failed on the "email" tag
+		return
+	}
 }

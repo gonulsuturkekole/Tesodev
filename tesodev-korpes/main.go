@@ -3,13 +3,11 @@ package main
 import (
 	"github.com/labstack/echo/v4"
 	_ "github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"os"
 	"sync"
 	"tesodev-korpes/CustomerService/cmd"
 	orderCmd "tesodev-korpes/OrderService/cmd"
 	"tesodev-korpes/pkg"
-	"tesodev-korpes/pkg/middlewares"
 	"tesodev-korpes/shared/config"
 )
 
@@ -41,11 +39,12 @@ func main() {
 		panic(err)
 	}
 
-	stats := middlewares.NewStats()
 	e := echo.New()
+
+	/*stats := middlewares.NewStats()
 	e.Use(middleware.Logger())
 	e.Use(stats.Process)
-	e.Use(middlewares.ScopedServiceMiddleware)
+	e.Use(middlewares.ScopedServiceMiddleware)*/
 
 	if len(os.Args) < 2 {
 		panic("Please provide a service to start: customer, order, or both")

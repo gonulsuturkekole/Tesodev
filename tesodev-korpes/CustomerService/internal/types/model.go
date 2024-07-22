@@ -8,7 +8,7 @@ type Customer struct {
 	Id             string            `bson:"_id" json:"id"`
 	FirstName      string            `bson:"first_name" json:"first_name" validate:"required"`
 	LastName       string            `bson:"last_name" json:"last_name" validate:"required"`
-	Age            string            `bson:"age" json:"age" validate:"required,ageValidation"`
+	Age            int               `bson:"age" json:"age" validate:"gte=18,lte=130"`
 	Email          string            `bson:"email" json:"email" validate:"required,email"`
 	Phone          string            `bson:"phone" json:"phone"`
 	Address        string            `bson:"address" json:"address"`
