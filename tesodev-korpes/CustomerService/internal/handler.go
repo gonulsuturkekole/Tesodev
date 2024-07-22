@@ -63,7 +63,7 @@ func (h *Handler) Create(c echo.Context) error {
 			case "ageValidation":
 				errorMessages[fieldError.Field()] = "Age must be a number greater than or equal to 18"
 			default:
-				errorMessages[fieldError.Field()] = "Invalid value"
+				errorMessages[fieldError.Field()] = "Required field"
 			}
 		}
 
