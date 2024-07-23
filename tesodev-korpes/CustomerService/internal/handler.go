@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/echo/v4"
 	_ "go.mongodb.org/mongo-driver/mongo"
 	"net/http"
+	"strconv"
 	"tesodev-korpes/CustomerService/internal/types"
 )
 
@@ -39,6 +40,63 @@ func (h *Handler) GetByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, customerResponse)
 }
 
+/*func (h *Handler) Create(c echo.Context) error {
+var customerRequestModel types.CustomerRequestModel
+
+if err := c.Bind(&customerRequestModel); err != nil {
+	return c.JSON(http.StatusBadRequest, err.Error())
+}
+/*if err := h.validate.Struct(customer); err != nil {
+	return c.JSON(http.StatusBadRequest, err.Error())
+}*/
+//Validation(&customerRequestModel)
+// Validate customer object
+/*ValidateAge(&customerRequestModel)
+
+	if err := h.validate.Struct(customerRequestModel); err != nil {
+		// Handle validation errors
+		validationErrors := err.(validator.ValidationErrors)
+		errorMessages := make(map[string]string)
+
+		for _, fieldError := range validationErrors {
+			switch fieldError.Tag() {
+			case "email":
+				errorMessages[fieldError.Field()] = "It is not valid email address"
+			case "ageValidation":
+				errorMessages[fieldError.Field()] = "Age must be a number greater than or equal to 18"
+			default:
+				errorMessages[fieldError.Field()] = "Required field"
+			}
+		}
+
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": "Validation failed",
+			"errors":  errorMessages,
+		})
+	}//
+
+	if err := ValidateCustomer(&customerRequestModel, h.validate); err != nil {
+		if valErr, ok := err.(*ValidationError); ok {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": "Validation failed",
+				"errors":  valErr.Errors,
+			})
+		}
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": err.Error(),
+		})
+	}
+	id, err := h.service.Create(c.Request().Context(), customerRequestModel)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	response := map[string]interface{}{
+		"message":   "Succeeded!",
+		"createdId": id,
+	}
+	return c.JSON(http.StatusCreated, response)
+}
+*/
 func (h *Handler) Create(c echo.Context) error {
 	var customerRequestModel types.CustomerRequestModel
 
@@ -95,7 +153,6 @@ func (h *Handler) Create(c echo.Context) error {
 	}
 	return c.JSON(http.StatusCreated, response)
 }
-
 func (h *Handler) Update(c echo.Context) error {
 	id := c.Param("id")
 	var customer types.CustomerUpdateModel
@@ -137,16 +194,29 @@ func (h *Handler) GetCustomersByFilter(c echo.Context) error {
 	firstName := c.QueryParam("first_name")
 	ageGreaterThan := c.QueryParam("age_greater_than")
 	ageLessThan := c.QueryParam("age_less_than")
+	pageStr := c.QueryParam("page")
+	limitStr := c.QueryParam("limit")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, map[string]string{"message": "Invalid page parameter"})
+	}
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, map[string]string{"message": "Invalid limit parameter"})
+	}
 
 	// Call the service method to find customers by first name
-	customers, err := h.service.GetCustomers(c.Request().Context(), firstName, ageGreaterThan, ageLessThan)
+	customers, _, err := h.service.GetCustomers(c.Request().Context(), firstName, ageGreaterThan, ageLessThan, page, limit)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, map[string]string{"message": "Error fetching customers"})
 	}
 	if len(customers) == 0 {
 		return echo.NewHTTPError(http.StatusNotFound, map[string]string{"message": "No customers found"})
 	}
-	return c.JSON(http.StatusOK, map[string]interface{}{
+
+	return echo.NewHTTPError(http.StatusOK, map[string]interface{}{
 		"message": "customer fetch",
 		"data":    customers,
 	})

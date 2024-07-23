@@ -2,7 +2,6 @@ package internal
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"strings"
@@ -117,10 +116,9 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Customer, erro
 func (s *Service) Create(ctx context.Context, customerRequestModel types.CustomerRequestModel) (string, error) {
 
 	// Check if the customer data is valid
-	if err := validateCustomer(customerRequestModel); err != nil {
-		fmt.Println("Invalid customer data:", err)
-		return "", err
-	}
+	//if err := validateCustomer(customerRequestModel); err != nil {
+	//fmt.Println("Invalid customer data:", err)
+	//return "", err
 
 	// Generate a new UUID
 	customID := uuid.New().String()
@@ -168,12 +166,12 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 	return s.repo.Delete(ctx, id)
 }
 
-func (s *Service) GetCustomers(ctx context.Context, firstName string, ageGreaterThan string, ageLessThan string) ([]types.Customer, error) {
-	return s.repo.GetCustomersByFilter(ctx, firstName, ageGreaterThan, ageLessThan)
+func (s *Service) GetCustomers(ctx context.Context, firstName string, ageGreaterThan string, ageLessThan string, page int, limit int) ([]types.Customer, int64, error) {
+	return s.repo.GetCustomersByFilter(ctx, firstName, ageGreaterThan, ageLessThan, page, limit)
 
 }
 
-func containsDigit(s string) bool {
+/*func containsDigit(s string) bool {
 	for i := 0; i < len(s); i++ {
 		if s[i] >= '0' && s[i] <= '9' {
 			return true
@@ -205,4 +203,4 @@ func validateCustomer(customer types.CustomerRequestModel) error {
 		fmt.Printf("Customer '%s' is valid.\n", customer.FirstName)
 	}
 	return nil
-}
+} */

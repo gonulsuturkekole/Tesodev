@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"net/http"
+	"strconv"
 	"tesodev-korpes/CustomerService/internal/types"
 )
 
@@ -20,6 +21,14 @@ func NewRepository(col *mongo.Collection) *Repository {
 		collection: col,
 	}
 }
+
+type Pager struct {
+	Page      int
+	Limit     int
+	Offset    int
+	AllRecord int
+}
+
 func (r *Repository) GetCustomersWithSecondLetterA(ctx context.Context) ([]types.Customer, error) {
 	filter := bson.M{"firstName": bson.M{"$regex": "^.{1}a"}}
 	opts := options.Find().SetLimit(5)
@@ -73,38 +82,135 @@ func (r *Repository) Delete(ctx context.Context, id string) error {
 	return err
 }
 
-func (r *Repository) GetCustomersByFilter(ctx context.Context, firstName string, ageGreaterThan string, ageLessThan string) ([]types.Customer, error) {
+/*
+		func (r *Repository) GetCustomersByFilter(ctx context.Context, firstName string, ageGreaterThan string, ageLessThan string, page int, limit int) ([]types.Customer,int64, error) {
+			var customers []types.Customer
+			// Create a filter to match the first name
+			pager := NewPager(page, limit)
+			filter := bson.M{}
+			if firstName != "" {
+				filter["first_name"] = firstName
+			}
+			if ageGreaterThan > "" {
+				filter["age"] = bson.M{"$gte": ageGreaterThan}
+			}
+			// Check if ageLessThan is not empty
+			if ageLessThan > "" {
+				// Check if "age" is not already in the filter
+				if filter["age"] == nil {
+					// Add "age" to the filter with a condition that it should be less than or equal to ageLessThan
+					filter["age"] = bson.M{"$lte": ageLessThan}
+				} else {
+					// If "age" is already in the filter, add the less than or equal condition to the existing "age" filter
+	     filter["age"].(bson.M)["$lte"] = ageLessThan
+				}
+			}
+			fmt.Printf("Filter: %v\n", filter) // Log the filter to see what is being sent
+			totalCount, err := r.collection.CountDocuments(ctx, filter)
+			if err != nil {
+				return nil, echo.NewHTTPError(http.StatusInternalServerError, map[string]string{"message": "error counting customers"})
+			}
+			pager.AllRecord = int(totalCount)
+
+			// Calculate the offset based on the page and limit
+			offset := (page - 1) * limit
+			opts := options.Find()
+			opts.SetSkip(int64(offset))
+			opts.SetLimit(int64(limit))
+
+			cursor, err := r.collection.Find(ctx, filter, opts)
+			if err != nil {
+				return nil, echo.NewHTTPError(http.StatusBadRequest, map[string]string{"message": "could not get any customers"})
+			}
+			defer cursor.Close(ctx)
+			if err := cursor.All(ctx, &customers); err != nil {
+				return nil, echo.NewHTTPError(http.StatusInternalServerError, map[string]string{"message": "error decoding customers"})
+			}
+			/*response := map[string]interface{}{
+				"customers":  customers,
+				"totalCount": totalCount,
+			}
+			return response, nil//
+
+			return customers, nil
+		}
+*/
+func NewPager(page int, limit int) Pager {
+	pager := Pager{}
+
+	if page < 1 {
+		pager.Page = 1
+	} else {
+		pager.Page = page
+	}
+
+	if limit <= 0 {
+
+		return Pager{Page: pager.Page, Limit: 0, AllRecord: 0}
+	}
+
+	pager.Limit = limit
+	pager.Offset = (pager.Page - 1) * pager.Limit
+	return pager
+}
+
+/*
+	func (p *Pager) GetOffset() int {
+		return (p.Page - 1) * p.Limit
+	}
+*/
+func (r *Repository) GetCustomersByFilter(ctx context.Context, firstName string, ageGreaterThan string, ageLessThan string, page int, limit int) ([]types.Customer, int64, error) {
 	var customers []types.Customer
-	// Create a filter to match the first name
-	opts := options.Find().SetLimit(5)
+	pager := NewPager(page, limit)
 
 	filter := bson.M{}
 	if firstName != "" {
 		filter["first_name"] = firstName
 	}
-	if ageGreaterThan > "" {
-		filter["age"] = bson.M{"$gte": ageGreaterThan}
+
+	// Convert age parameters to integers
+	if ageGreaterThan != "" {
+		ageGte, err := strconv.Atoi(ageGreaterThan)
+		if err != nil {
+			return nil, 0, echo.NewHTTPError(http.StatusBadRequest, map[string]string{"message": "Invalid age_greater_than parameter"})
+		}
+		filter["age"] = bson.M{"$gte": ageGte}
 	}
-	// Check if ageLessThan is not empty
-	if ageLessThan > "" {
-		// Check if "age" is not already in the filter
+
+	if ageLessThan != "" {
+		ageLte, err := strconv.Atoi(ageLessThan)
+		if err != nil {
+			return nil, 0, echo.NewHTTPError(http.StatusBadRequest, map[string]string{"message": "Invalid age_less_than parameter"})
+		}
 		if filter["age"] == nil {
-			// Add "age" to the filter with a condition that it should be less than or equal to ageLessThan
-			filter["age"] = bson.M{"$lte": ageLessThan}
+			filter["age"] = bson.M{"$lte": ageLte}
 		} else {
-			// If "age" is already in the filter, add the less than or equal condition to the existing "age" filter
-			filter["age"].(bson.M)["$lte"] = ageLessThan
+			filter["age"].(bson.M)["$lte"] = ageLte
 		}
 	}
-	fmt.Printf("Filter: %v\n", filter) // Log the filter to see what is being sent
-	// Perform the query
+
+	fmt.Printf("Filter: %v\n", filter)
+
+	totalCount, err := r.collection.CountDocuments(ctx, filter)
+	if err != nil {
+		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError, map[string]string{"message": "Error counting customers"})
+	}
+	pager.AllRecord = int(totalCount)
+
+	offset := (page - 1) * limit
+	opts := options.Find()
+	opts.SetSkip(int64(offset))
+	opts.SetLimit(int64(limit))
+
 	cursor, err := r.collection.Find(ctx, filter, opts)
 	if err != nil {
-		return nil, echo.NewHTTPError(http.StatusBadRequest, map[string]string{"message": "could not get any customers"})
+		return nil, 0, echo.NewHTTPError(http.StatusBadRequest, map[string]string{"message": "Could not get any customers"})
 	}
 	defer cursor.Close(ctx)
 	if err := cursor.All(ctx, &customers); err != nil {
-		return nil, echo.NewHTTPError(http.StatusInternalServerError, map[string]string{"message": "error decoding customers"})
+		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError, map[string]string{"message": "Error decoding customers"})
 	}
-	return customers, nil
+
+	return customers, totalCount, nil
+
 }
