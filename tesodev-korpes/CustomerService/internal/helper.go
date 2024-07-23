@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"fmt"
+	"errors"
 	"github.com/go-playground/validator/v10"
 	"tesodev-korpes/CustomerService/internal/types"
 )
@@ -23,23 +23,55 @@ func ToCustomerResponse(customer *types.Customer) *types.CustomerResponseModel {
 
 }
 
-/*
-func ValidateAge(r *types.CustomerRequestModel) bool{
-
+func ValidateAge(r *types.CustomerRequestModel) error {
 	age := r.Age
-	if age == "" {
-	return nil}
-
-}
-*/
-
-func Validation(customerRequestModel *types.CustomerRequestModel) {
-
-	var validate *validator.Validate
-	errs := validate.Var(customerRequestModel.Age, "gte=18")
-
-	if errs != nil {
-		fmt.Println(errs) // output: Key: "" aError:Field validtion for "" failed on the "email" tag
-		return
+	if age == 0 {
+		return errors.New("age is required")
 	}
+
+	if age < 18 {
+		return errors.New("age must be 18 or older")
+	}
+
+	return nil
+}
+
+func ValidateCustomer(customer *types.CustomerRequestModel, validate *validator.Validate) error {
+	validationErrors := make(map[string]string)
+
+	if err := ValidateAge(customer); err != nil {
+		validationErrors["Age"] = err.Error()
+	}
+
+	if err := validate.Struct(customer); err != nil {
+		if fieldErrors, ok := err.(validator.ValidationErrors); ok {
+			for _, fieldError := range fieldErrors {
+				switch fieldError.Tag() {
+				case "email":
+					validationErrors[fieldError.Field()] = "It is not a valid email address"
+				case "age":
+					validationErrors[fieldError.Field()] = "Age must be a number greater than or equal to 18"
+				case "required":
+					validationErrors[fieldError.Field()] = "This field is required"
+				default:
+					validationErrors[fieldError.Field()] = "Validation failed"
+				}
+			}
+		}
+	}
+
+	if len(validationErrors) > 0 {
+		return &ValidationError{Errors: validationErrors}
+	}
+
+	return nil
+}
+
+// Custom validation error structure
+type ValidationError struct {
+	Errors map[string]string
+}
+
+func (e *ValidationError) Error() string {
+	return "Validation failed"
 }

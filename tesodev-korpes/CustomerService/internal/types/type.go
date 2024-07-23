@@ -7,7 +7,7 @@ type CustomerRequestModel struct {
 	FirstName string    `bson:"first_name" json:"first_name" validate:"required"`
 	LastName  string    `bson:"last_name" json:"last_name" validate:"required"`
 	Email     string    `bson:"email" json:"email" validate:"required,email"`
-	Age       int       `bson:"age" json:"age" validate:"gte=18,lte=130"`
+	Age       int       `bson:"age" json:"age"  validate:"required"`
 	CreatedAt time.Time `bson:"created_at" json:"created_at"`
 }
 

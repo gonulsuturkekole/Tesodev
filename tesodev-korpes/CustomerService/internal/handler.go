@@ -19,7 +19,6 @@ func NewHandler(e *echo.Echo, service *Service) {
 
 	//handler.validate.RegisterValidation("ageValidation", ageValidation)
 	//handler.validate.RegisterValidation("email", validateEmail)
-
 	g := e.Group("/customer")
 	g.GET("/:id", handler.GetByID)
 	g.POST("/", handler.Create)
@@ -51,6 +50,8 @@ func (h *Handler) Create(c echo.Context) error {
 	}*/
 	//Validation(&customerRequestModel)
 	// Validate customer object
+	/*ValidateAge(&customerRequestModel)
+
 	if err := h.validate.Struct(customerRequestModel); err != nil {
 		// Handle validation errors
 		validationErrors := err.(validator.ValidationErrors)
@@ -70,6 +71,18 @@ func (h *Handler) Create(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message": "Validation failed",
 			"errors":  errorMessages,
+		})
+	}*/
+
+	if err := ValidateCustomer(&customerRequestModel, h.validate); err != nil {
+		if valErr, ok := err.(*ValidationError); ok {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": "Validation failed",
+				"errors":  valErr.Errors,
+			})
+		}
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": err.Error(),
 		})
 	}
 	id, err := h.service.Create(c.Request().Context(), customerRequestModel)
