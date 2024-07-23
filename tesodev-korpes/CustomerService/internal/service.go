@@ -21,6 +21,10 @@ func NewService(repo *Repository) *Service {
 	}
 }
 
+func (s *Service) GetCustomersWithSecondLetterA(ctx context.Context) ([]types.Customer, error) {
+	return s.repo.GetCustomersWithSecondLetterA(ctx)
+}
+
 func (s *Service) GetByID(ctx context.Context, id string) (*types.Customer, error) {
 	customer, err := s.repo.FindByID(ctx, id)
 	if err != nil {
@@ -85,18 +89,18 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Customer, erro
 		switch customer.MembershipType {
 		case "standard":
 			customer.AdditionalInfo["membership_type"] = "Standard"
-			customer.AdditionalInfo["free shipping"] = "1"
+			customer.AdditionalInfo["free_shipping"] = "1"
 		case "premium":
 			customer.AdditionalInfo["membership_type"] = "Premium"
-			customer.AdditionalInfo["free shipping"] = "5"
+			customer.AdditionalInfo["free_shipping"] = "5"
 		case "gold":
 			customer.AdditionalInfo["membership_type"] = "Gold"
-			customer.AdditionalInfo["free shipping"] = "100"
-			customer.AdditionalInfo["priority in customer line"] = "yes"
+			customer.AdditionalInfo["free_shipping"] = "100"
+			customer.AdditionalInfo["priority_in_customer_line"] = "yes"
 			customer.AdditionalInfo["discover"] = "%5"
 		default:
 			customer.AdditionalInfo["membership_type"] = "None"
-			customer.AdditionalInfo["free shipping"] = "0"
+			customer.AdditionalInfo["free_shipping"] = "0"
 		}
 		fmt.Println("Customer ID:", id)
 		fmt.Println("Customer Membership Type:", customer.MembershipType)
@@ -110,10 +114,10 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Customer, erro
 }
 
 // Create method creates a new customer with a custom UUID as the ID
-func (s *Service) Create(ctx context.Context, customer *types.Customer) (string, error) {
+func (s *Service) Create(ctx context.Context, customerRequestModel types.CustomerRequestModel) (string, error) {
 
 	// Check if the customer data is valid
-	if err := validateCustomer(customer); err != nil {
+	if err := validateCustomer(customerRequestModel); err != nil {
 		fmt.Println("Invalid customer data:", err)
 		return "", err
 	}
@@ -121,10 +125,20 @@ func (s *Service) Create(ctx context.Context, customer *types.Customer) (string,
 	// Generate a new UUID
 	customID := uuid.New().String()
 	now := time.Now().Local()
-	customer.CreatedAt = now
+	customerRequestModel.CreatedAt = now
 	// Set the customer's ID to the generated UUID
-	customer.Id = customID
+	//customerRequestModel.Id = customID
 	// Insert the customer data into MongoDB
+
+	customer := &types.Customer{
+		FirstName: customerRequestModel.FirstName,
+		LastName:  customerRequestModel.LastName,
+		Age:       customerRequestModel.Age,
+		Email:     customerRequestModel.Email,
+		CreatedAt: customerRequestModel.CreatedAt,
+		Id:        customID,
+	}
+	//customer.Id = customID
 
 	_, err := s.repo.Create(ctx, customer)
 	if err != nil {
@@ -134,15 +148,9 @@ func (s *Service) Create(ctx context.Context, customer *types.Customer) (string,
 	return customID, nil
 }
 
-func (s Service) Update1(ctx context.Context, customer *types.Customer) error {
-	customer.FirstName = "Gonul"
-	return nil
-
-}
 func (s *Service) Update(ctx context.Context, id string, customerUpdateModel types.CustomerUpdateModel) error {
 	// Create an update document
 	customer, err := s.GetByID(ctx, id)
-	s.Update1(ctx, customer)
 	now := time.Now().Local()
 	if err != nil {
 		return err
@@ -185,7 +193,7 @@ func startsWithUpperCase(s string) bool {
 
 // validateCustomer checks if the customer data is valid when it's created.
 // 2) do something with switch-case
-func validateCustomer(customer *types.Customer) error {
+func validateCustomer(customer types.CustomerRequestModel) error {
 	switch {
 	case containsDigit(customer.FirstName):
 		return errors.New("First name contains a number")

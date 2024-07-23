@@ -20,6 +20,22 @@ func NewRepository(col *mongo.Collection) *Repository {
 		collection: col,
 	}
 }
+func (r *Repository) GetCustomersWithSecondLetterA(ctx context.Context) ([]types.Customer, error) {
+	filter := bson.M{"firstName": bson.M{"$regex": "^.{1}a"}}
+	opts := options.Find().SetLimit(5)
+	cursor, err := r.collection.Find(ctx, filter, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var customers []types.Customer
+	if err = cursor.All(ctx, &customers); err != nil {
+		return nil, err
+	}
+
+	return customers, nil
+}
 
 func (r *Repository) FindByID(ctx context.Context, id string) (*types.Customer, error) {
 	var customer *types.Customer

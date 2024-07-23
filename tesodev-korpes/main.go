@@ -4,11 +4,31 @@ import (
 	"github.com/labstack/echo/v4"
 	_ "github.com/labstack/echo/v4"
 	"os"
+	"sync"
 	"tesodev-korpes/CustomerService/cmd"
 	orderCmd "tesodev-korpes/OrderService/cmd"
 	"tesodev-korpes/pkg"
 	"tesodev-korpes/shared/config"
 )
+
+type RequestProcessor struct {
+	counter int
+	mutex   sync.Mutex
+}
+
+// Increment increments the counter
+func (rp *RequestProcessor) Increment() {
+	rp.mutex.Lock()
+	defer rp.mutex.Unlock()
+	rp.counter++
+}
+
+// GetCounter returns the current value of the counter
+func (rp *RequestProcessor) GetCounter() int {
+	rp.mutex.Lock()
+	defer rp.mutex.Unlock()
+	return rp.counter
+}
 
 func main() {
 	//todo : what is dev,qa,prod ? explain why we are using them in the lecture
@@ -20,6 +40,11 @@ func main() {
 	}
 
 	e := echo.New()
+
+	/*stats := middlewares.NewStats()
+	e.Use(middleware.Logger())
+	e.Use(stats.Process)
+	e.Use(middlewares.ScopedServiceMiddleware)*/
 
 	if len(os.Args) < 2 {
 		panic("Please provide a service to start: customer, order, or both")
