@@ -17,9 +17,8 @@ func NewHandler(e *echo.Echo, service *Service) {
 
 	handler := &Handler{service: service, validate: validator.New()}
 
-	handler.validate.RegisterValidation("ageValidation", ageValidation)
-	handler.validate.RegisterValidation("email", validateEmail)
-
+	//handler.validate.RegisterValidation("ageValidation", ageValidation)
+	//handler.validate.RegisterValidation("email", validateEmail)
 	g := e.Group("/customer")
 	g.GET("/:id", handler.GetByID)
 	g.POST("/", handler.Create)
@@ -41,17 +40,19 @@ func (h *Handler) GetByID(c echo.Context) error {
 }
 
 func (h *Handler) Create(c echo.Context) error {
-	var customer *types.Customer
+	var customerRequestModel types.CustomerRequestModel
 
-	if err := c.Bind(&customer); err != nil {
+	if err := c.Bind(&customerRequestModel); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	/*if err := h.validate.Struct(customer); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}*/
-
+	//Validation(&customerRequestModel)
 	// Validate customer object
-	if err := h.validate.Struct(customer); err != nil {
+	/*ValidateAge(&customerRequestModel)
+
+	if err := h.validate.Struct(customerRequestModel); err != nil {
 		// Handle validation errors
 		validationErrors := err.(validator.ValidationErrors)
 		errorMessages := make(map[string]string)
@@ -59,11 +60,11 @@ func (h *Handler) Create(c echo.Context) error {
 		for _, fieldError := range validationErrors {
 			switch fieldError.Tag() {
 			case "email":
-				errorMessages[fieldError.Field()] = "Email must contain an '@' symbol"
+				errorMessages[fieldError.Field()] = "It is not valid email address"
 			case "ageValidation":
 				errorMessages[fieldError.Field()] = "Age must be a number greater than or equal to 18"
 			default:
-				errorMessages[fieldError.Field()] = "Invalid value"
+				errorMessages[fieldError.Field()] = "Required field"
 			}
 		}
 
@@ -71,14 +72,26 @@ func (h *Handler) Create(c echo.Context) error {
 			"message": "Validation failed",
 			"errors":  errorMessages,
 		})
+	}*/
+
+	if err := ValidateCustomer(&customerRequestModel, h.validate); err != nil {
+		if valErr, ok := err.(*ValidationError); ok {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": "Validation failed",
+				"errors":  valErr.Errors,
+			})
+		}
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": err.Error(),
+		})
 	}
-	id, err := h.service.Create(c.Request().Context(), customer)
+	id, err := h.service.Create(c.Request().Context(), customerRequestModel)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	response := map[string]interface{}{
-		"message":    "Successed!",
-		"creadtedId": id,
+		"message":   "Succeeded!",
+		"createdId": id,
 	}
 	return c.JSON(http.StatusCreated, response)
 }
@@ -128,10 +141,10 @@ func (h *Handler) GetCustomersByFilter(c echo.Context) error {
 	// Call the service method to find customers by first name
 	customers, err := h.service.GetCustomers(c.Request().Context(), firstName, ageGreaterThan, ageLessThan)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Error fetching customers"})
+		return echo.NewHTTPError(http.StatusInternalServerError, map[string]string{"message": "Error fetching customers"})
 	}
 	if len(customers) == 0 {
-		return c.JSON(http.StatusNotFound, map[string]string{"message": "No customers found"})
+		return echo.NewHTTPError(http.StatusNotFound, map[string]string{"message": "No customers found"})
 	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "customer fetch",
