@@ -38,9 +38,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	e := echo.New()
-	// Middleware added
-	e.Use(pkg.CorrelationIDMiddleware)
+
 	/*stats := middlewares.NewStats()
 	e.Use(middleware.Logger())
 	e.Use(stats.Process)
