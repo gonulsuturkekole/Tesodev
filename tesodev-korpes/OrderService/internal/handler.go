@@ -36,6 +36,7 @@ func (h *Handler) GetByID(c echo.Context) error {
 func (h *Handler) Create(c echo.Context) error {
 	var order *types.Order
 
+	//logger.Info("cusstoner")
 	if err := c.Bind(&order); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
