@@ -77,17 +77,26 @@ func (r *Repository) GetCustomersByFilter(ctx context.Context, firstName string,
 			]},
 		},
 	} */
+	// Initialize an empty filter map
 	filter := bson.M{}
+	// Check if firstName is not empty
 	if firstName != "" {
+		// Add "first_name" to the filter with the value of firstName
 		filter["first_name"] = firstName
 	}
+	// Check if ageGreaterThan is not empty
 	if ageGreaterThan > "" {
+		// Add "age" to the filter with a condition that it should be greater than or equal to ageGreaterThan
 		filter["age"] = bson.M{"$gte": ageGreaterThan}
 	}
+	// Check if ageLessThan is not empty
 	if ageLessThan > "" {
+		// Check if "age" is not already in the filter
 		if filter["age"] == nil {
+			// Add "age" to the filter with a condition that it should be less than or equal to ageLessThan
 			filter["age"] = bson.M{"$lte": ageLessThan}
 		} else {
+			// If "age" is already in the filter, add the less than or equal condition to the existing "age" filter
 			filter["age"].(bson.M)["$lte"] = ageLessThan
 		}
 	}
