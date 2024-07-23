@@ -77,32 +77,12 @@ func (r *Repository) GetCustomersByFilter(ctx context.Context, firstName string,
 	var customers []types.Customer
 	// Create a filter to match the first name
 	opts := options.Find().SetLimit(5)
-	//filter := bson.D{
-	//{"$or", bson.A{
-	//bson.D{{"age", bson.D{{"$gt", age}}}},
-	//bson.D{{"first_ame", name}},
-	//bson.D{{"last_name", lastName}},
-	//}},
-	//}
-	//filters
 
-	/*filter := bson.M{
-		"$or": []bson.M{
-			{"first_name": firstName},
-			{"$and":[{"age": bson.M{"$gt": ageGreaterThan}},{"age": bson.M{"$lt": ageLessThan}}
-			]},
-		},
-	} */
-	// Initialize an empty filter map
 	filter := bson.M{}
-	// Check if firstName is not empty
 	if firstName != "" {
-		// Add "first_name" to the filter with the value of firstName
 		filter["first_name"] = firstName
 	}
-	// Check if ageGreaterThan is not empty
 	if ageGreaterThan > "" {
-		// Add "age" to the filter with a condition that it should be greater than or equal to ageGreaterThan
 		filter["age"] = bson.M{"$gte": ageGreaterThan}
 	}
 	// Check if ageLessThan is not empty
