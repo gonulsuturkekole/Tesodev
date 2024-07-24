@@ -3,11 +3,13 @@ package main
 import (
 	"github.com/labstack/echo/v4"
 	_ "github.com/labstack/echo/v4"
+	"github.com/sirupsen/logrus"
 	"os"
 	"sync"
 	"tesodev-korpes/CustomerService/cmd"
 	orderCmd "tesodev-korpes/OrderService/cmd"
 	"tesodev-korpes/pkg"
+	"tesodev-korpes/pkg/middlewares"
 	"tesodev-korpes/shared/config"
 )
 
@@ -41,7 +43,14 @@ func main() {
 
 	e := echo.New()
 	e.Use(pkg.CorrelationIDMiddleware)
+	middlewares.Logger = &logrus.Logger{
+		Out:       os.Stderr,
+		Formatter: new(logrus.JSONFormatter),
+		Hooks:     make(logrus.LevelHooks),
+		Level:     logrus.DebugLevel,
+	}
 
+	e.Use(middlewares.Hook())
 	/*stats := middlewares.NewStats()
 	e.Use(middleware.Logger())
 	e.Use(stats.Process)
