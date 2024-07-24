@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"tesodev-korpes/CustomerService/internal/types"
+	"tesodev-korpes/pkg/log"
 )
 
 type Handler struct {
@@ -52,6 +53,7 @@ func (h *Handler) Create(c echo.Context) error {
 	var customerRequestModel types.CustomerRequestModel
 
 	if err := c.Bind(&customerRequestModel); err != nil {
+		log.Error(err.Error())
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
@@ -70,6 +72,9 @@ func (h *Handler) Create(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+
+	log.Info("customer create edildi")
+
 	response := map[string]interface{}{
 		"message":   "Succeeded!",
 		"createdId": id,

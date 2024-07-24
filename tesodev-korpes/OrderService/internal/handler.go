@@ -5,6 +5,7 @@ import (
 	_ "go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 	"tesodev-korpes/OrderService/internal/types"
+	"tesodev-korpes/pkg/log"
 )
 
 type Handler struct {
@@ -36,7 +37,6 @@ func (h *Handler) GetByID(c echo.Context) error {
 func (h *Handler) Create(c echo.Context) error {
 	var order *types.Order
 
-	// logger.Info("cusstoner")
 	if err := c.Bind(&order); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
@@ -46,12 +46,15 @@ func (h *Handler) Create(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
+	log.Info("order create edildi")
+
 	response := map[string]interface{}{
 		"message":    "Successed!",
 		"creadtedId": id,
 	}
 
 	return c.JSON(http.StatusCreated, response)
+
 }
 
 func (h *Handler) Update(c echo.Context) error {
