@@ -3,11 +3,10 @@ package types
 import "time"
 
 type CustomerRequestModel struct {
-	Id        string    `bson:"_id" json:"id"`
-	FirstName string    `bson:"first_name" json:"first_name"`
-	LastName  string    `bson:"last_name" json:"last_name"`
+	FirstName string    `bson:"first_name" json:"first_name" validate:"required"`
+	LastName  string    `bson:"last_name" json:"last_name" validate:"required"`
+	Age       int       `bson:"age" json:"age" `
 	Email     string    `bson:"email" json:"email"`
-	Age       int       `bson:"age" json:"age"`
 	CreatedAt time.Time `bson:"created_at" json:"created_at"`
 }
 

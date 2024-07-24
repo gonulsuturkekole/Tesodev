@@ -166,9 +166,9 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 	return s.repo.Delete(ctx, id)
 }
 
-func (s *Service) GetCustomers(ctx context.Context, firstName string, ageGreaterThan string, ageLessThan string, page int, limit int) ([]types.Customer, int64, error) {
-	return s.repo.GetCustomersByFilter(ctx, firstName, ageGreaterThan, ageLessThan, page, limit)
+func (s *Service) GetCustomers(ctx context.Context, params QueryParams, page, limit int) ([]types.Customer, int64, error) {
 
+	return s.repo.GetCustomersByFilter(ctx, params.FirstName, params.AgeGreaterThan, params.AgeLessThan, page, limit)
 }
 
 /*func containsDigit(s string) bool {

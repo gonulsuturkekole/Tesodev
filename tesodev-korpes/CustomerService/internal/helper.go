@@ -86,7 +86,6 @@ package internal
 import (
 	"errors"
 	"github.com/go-playground/validator/v10"
-	"strconv"
 	"strings"
 	"tesodev-korpes/CustomerService/internal/types"
 )
@@ -108,14 +107,29 @@ func ToCustomerResponse(customer *types.Customer) *types.CustomerResponseModel {
 
 }
 
+func ValidateEmail(r *types.CustomerRequestModel) error {
+
+	email := r.Email
+
+	if email == "" {
+		return errors.New("Email is required")
+	}
+
+	if !strings.Contains(email, "@") {
+		return errors.New("Email must contain @")
+	}
+	return nil
+
+}
+
 func ValidateAge(r *types.CustomerRequestModel) error {
 	age := r.Age
 	if age == 0 {
-		return errors.New("age is required")
+		return errors.New("Age is required")
 	}
 
 	if age < 18 {
-		return errors.New("age must be 18 or older")
+		return errors.New("Age must be 18 or older")
 	}
 
 	return nil
@@ -159,21 +173,8 @@ func ValidateCustomer(customer *types.CustomerRequestModel, validate *validator.
 		validationErrors["Age"] = err.Error()
 	}
 
-	if err := validate.Struct(customer); err != nil {
-		if fieldErrors, ok := err.(validator.ValidationErrors); ok {
-			for _, fieldError := range fieldErrors {
-				switch fieldError.Tag() {
-				case "email":
-					validationErrors[fieldError.Field()] = "It is not a valid email address"
-				case "age":
-					validationErrors[fieldError.Field()] = "Age must be a number greater than or equal to 18"
-				case "required":
-					validationErrors[fieldError.Field()] = "This field is required"
-				default:
-					validationErrors[fieldError.Field()] = "Validation failed"
-				}
-			}
-		}
+	if err := ValidateEmail(customer); err != nil {
+		validationErrors["Email"] = err.Error()
 	}
 
 	if err := ValidateFirstLetterUpperCase(customer); err != nil {
@@ -181,6 +182,19 @@ func ValidateCustomer(customer *types.CustomerRequestModel, validate *validator.
 		if valErr, ok := err.(*ValidationError); ok {
 			for field, msg := range valErr.Errors {
 				validationErrors[field] = msg
+			}
+		}
+	}
+
+	if err := validate.Struct(customer); err != nil {
+		if fieldErrors, ok := err.(validator.ValidationErrors); ok {
+			for _, fieldError := range fieldErrors {
+				switch fieldError.Tag() {
+				case "required":
+					validationErrors[fieldError.Field()] = "This field is required"
+				default:
+					validationErrors[fieldError.Field()] = "Validation failed"
+				}
 			}
 		}
 	}
@@ -199,23 +213,4 @@ type ValidationError struct {
 
 func (e *ValidationError) Error() string {
 	return "Validation failed"
-}
-
-func LimitOffsetValidation(limitStr, offsetStr string) (int64, int64) {
-	const defaultLimit = 10 // Varsayılan limit değeri
-	const defaultOffset = 0 // Varsayılan offset değeri
-
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil || limit <= 0 {
-		// Eğer limit değeri geçersiz veya sıfırdan küçükse, varsayılan değeri kullan
-		limit = defaultLimit
-	}
-
-	offset, err := strconv.Atoi(offsetStr)
-	if err != nil || offset < 0 {
-		// Eğer offset değeri geçersiz veya negatif ise, varsayılan değeri kullan
-		offset = defaultOffset
-	}
-
-	return int64(limit), int64(offset)
 }
