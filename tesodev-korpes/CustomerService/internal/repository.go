@@ -89,12 +89,11 @@ func NewPager(page int, limit int) Pager {
 	}
 
 	if limit <= 0 {
-
-		return Pager{Page: pager.Page, Limit: 0, AllRecord: 0}
+		pager.Limit = 0
+	} else {
+		pager.Limit = limit
 	}
 
-	pager.Limit = limit
-	pager.Offset = (pager.Page - 1) * pager.Limit
 	return pager
 }
 
@@ -136,7 +135,7 @@ func (r *Repository) GetCustomersByFilter(ctx context.Context, firstName string,
 	}
 	pager.AllRecord = int(totalCount)
 
-	offset := (page - 1) * limit
+	offset := (pager.Page - 1) * pager.Limit
 	pager.Offset = offset
 
 	opts := options.Find()
