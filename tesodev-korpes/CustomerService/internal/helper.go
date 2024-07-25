@@ -189,12 +189,10 @@ func ValidateCustomer(customer *types.CustomerRequestModel, validate *validator.
 	if err := validate.Struct(customer); err != nil {
 		if fieldErrors, ok := err.(validator.ValidationErrors); ok {
 			for _, fieldError := range fieldErrors {
-				switch fieldError.Tag() {
-				case "required":
+				if fieldError.Tag() == "required" {
 					validationErrors[fieldError.Field()] = "This field is required"
-				default:
-					validationErrors[fieldError.Field()] = "Validation failed"
 				}
+
 			}
 		}
 	}
