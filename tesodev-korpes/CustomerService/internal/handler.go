@@ -60,7 +60,7 @@ func (h *Handler) Create(c echo.Context) error {
 	if err := ValidateCustomer(&customerRequestModel, h.validate); err != nil {
 		if valErr, ok := err.(*ValidationError); ok {
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
-				"message": "Validation failed",
+				"message": err.Error(),
 				"errors":  valErr.Errors,
 			})
 		}
@@ -72,8 +72,6 @@ func (h *Handler) Create(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-
-	log.Info("customer create edildi")
 
 	response := map[string]interface{}{
 		"message":   "Succeeded!",
