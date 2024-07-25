@@ -73,7 +73,7 @@ func (h *Handler) Create(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	log.Info("customer create edildi")
+	log.Info("customer is created")
 
 	response := map[string]interface{}{
 		"message":   "Succeeded!",
