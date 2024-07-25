@@ -23,10 +23,9 @@ func NewRepository(col *mongo.Collection) *Repository {
 }
 
 type Pager struct {
-	Page       int
-	Limit      int
-	Offset     int
-	TotalCount int
+	Page   int
+	Limit  int
+	Offset int
 }
 
 func (r *Repository) GetCustomersWithSecondLetterA(ctx context.Context) ([]types.Customer, error) {
@@ -133,7 +132,6 @@ func (r *Repository) GetCustomersByFilter(ctx context.Context, firstName string,
 	if err != nil {
 		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError, map[string]string{"message": "Error counting customers"})
 	}
-	//pager.AllRecord = int(totalCount)
 
 	offset := (pager.Page - 1) * pager.Limit
 	pager.Offset = offset
