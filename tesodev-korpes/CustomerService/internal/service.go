@@ -24,6 +24,14 @@ func (s *Service) GetCustomersWithSecondLetterA(ctx context.Context) ([]types.Cu
 	return s.repo.GetCustomersWithSecondLetterA(ctx)
 }
 
+func (s *Service) GetUser(ctx context.Context, username string) (types.CustomerResponseModel, error) {
+	user, err := s.repo.GetUser(ctx, username)
+	if err != nil {
+		return types.CustomerResponseModel{}, err
+	}
+	return user, nil
+}
+
 func (s *Service) GetByID(ctx context.Context, id string) (*types.Customer, error) {
 	customer, err := s.repo.FindByID(ctx, id)
 	if err != nil {
@@ -135,6 +143,8 @@ func (s *Service) Create(ctx context.Context, customerRequestModel types.Custome
 		Email:     customerRequestModel.Email,
 		CreatedAt: customerRequestModel.CreatedAt,
 		Id:        customID,
+		Username:  customerRequestModel.Username,
+		Password:  customerRequestModel.Password,
 	}
 	//customer.Id = customID
 
