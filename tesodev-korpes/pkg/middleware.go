@@ -21,3 +21,15 @@ func CorrelationIDMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		return next(c)
 	}
 }
+
+/*func VerifyToken(c echo.Context) string {
+
+	tokenString := c.Request().Header.Get("Authorization")
+	if tokenString == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Authorization header is required"})
+	}
+	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
+
+	return tokenString
+}
+*/

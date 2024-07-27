@@ -28,6 +28,16 @@ type Pager struct {
 	Offset int
 }
 
+func (r *Repository) GetUser(ctx context.Context, username string) (types.CustomerResponseModel, error) {
+	var result types.CustomerResponseModel
+	filter := bson.M{"username": username}
+	err := r.collection.FindOne(ctx, filter).Decode(&result)
+	if err != nil {
+		return result, err
+	}
+	return result, nil
+}
+
 func (r *Repository) GetCustomersWithSecondLetterA(ctx context.Context) ([]types.Customer, error) {
 	filter := bson.M{"firstName": bson.M{"$regex": "^.{1}a"}}
 	opts := options.Find().SetLimit(5)

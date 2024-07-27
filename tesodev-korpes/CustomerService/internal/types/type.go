@@ -1,13 +1,23 @@
 package types
 
-import "time"
+import (
+	"time"
+)
 
 type CustomerRequestModel struct {
 	FirstName string    `bson:"first_name" json:"first_name" validate:"required"`
 	LastName  string    `bson:"last_name" json:"last_name" validate:"required"`
 	Age       int       `bson:"age" json:"age" `
 	Email     string    `bson:"email" json:"email"`
+	Username  string    `bson:"username" json:"username" validate:"required"`
+	Password  string    `bson:"password" json:"password" validate:"required"`
 	CreatedAt time.Time `bson:"created_at" json:"created_at"`
+}
+
+type User struct {
+	Username string `bson:"username" json:"username" validate:"required"`
+	Password string `bson:"password" json:"password" validate:"required"`
+	Token    string `bson:"token" json:"token"`
 }
 
 type CustomerResponseModel struct {
@@ -19,6 +29,9 @@ type CustomerResponseModel struct {
 	AdditionalInfo map[string]string `bson:"additional_info" json:"additional_info"`
 	ContactOption  []string          `bson:"contact_option" json:"contact_option"`
 	Age            int               `bson:"age" json:"age"`
+	Username       string            `bson:"username" json:"username"`
+	Password       string            `bson:"password" json:"password"`
+	Token          string            `bson:"token" json:"token"`
 }
 
 type CustomerUpdateModel struct {
@@ -30,6 +43,8 @@ type CustomerUpdateModel struct {
 	City           string            `bson:"city" json:"city"`
 	State          string            `bson:"state" json:"state"`
 	ZipCode        string            `bson:"zip_code" json:"zip_code"`
+	Username       string            `bson:"username" json:"username" validate:"required"`
+	Password       string            `bson:"password" json:"password" validate:"required"`
 	AdditionalInfo map[string]string `bson:"additional_info" json:"additional_info"`
 	MembershipType string            `bson:"membership_type" json:"membership_type"`
 	ContactOption  []string          `bson:"contact_option" json:"contact_option"`

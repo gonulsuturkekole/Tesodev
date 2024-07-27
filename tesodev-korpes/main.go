@@ -42,7 +42,7 @@ func main() {
 	}
 
 	e := echo.New()
-	e.Use(pkg.CorrelationIDMiddleware)
+	e.Pre(pkg.CorrelationIDMiddleware)
 	middlewares.Logger = &logrus.Logger{
 		Out:       os.Stderr,
 		Formatter: new(logrus.JSONFormatter),

@@ -18,6 +18,8 @@ type Customer struct {
 	AdditionalInfo map[string]string `bson:"additional_info" json:"additional_info"`
 	MembershipType string            `bson:"membership_type" json:"membership_type"`
 	ContactOption  []string          `bson:"contact_option" json:"contact_option"`
+	Username       string            `bson:"username" json:"username" validate:"required"`
+	Password       string            `bson:"password" json:"password" validate:"required"`
 	CreatedAt      time.Time         `bson:"created_at" json:"created_at"`
 	UpdatedAt      time.Time         `bson:"updated_at" json:"updated_at"`
 }
