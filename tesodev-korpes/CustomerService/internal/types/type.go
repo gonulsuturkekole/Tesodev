@@ -14,6 +14,12 @@ type CustomerRequestModel struct {
 	CreatedAt time.Time `bson:"created_at" json:"created_at"`
 }
 
+type QueryParams struct {
+	FirstName      string `json:"first_name"`
+	AgeGreaterThan string `json:"agt"`
+	AgeLessThan    string `json:"alt"`
+}
+
 type User struct {
 	Username string `bson:"username" json:"username" validate:"required"`
 	Password string `bson:"password" json:"password" validate:"required"`
