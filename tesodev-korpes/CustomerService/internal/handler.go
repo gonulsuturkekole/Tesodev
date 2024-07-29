@@ -128,6 +128,7 @@ func (h *Handler) Create(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+	log.Info("customer created")
 
 	response := map[string]interface{}{
 		"message":   "Succeeded!",
