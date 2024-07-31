@@ -20,12 +20,6 @@ type Handler struct {
 	validate *validator.Validate
 }
 
-type QueryParams struct {
-	FirstName      string `json:"first_name"`
-	AgeGreaterThan string `json:"agt"`
-	AgeLessThan    string `json:"alt"`
-}
-
 func NewHandler(e *echo.Echo, service *Service) {
 
 	handler := &Handler{service: service, validate: validator.New()}
@@ -178,7 +172,7 @@ func (h *Handler) Delete(c echo.Context) error {
 }
 
 func (h *Handler) GetCustomersByFilter(c echo.Context) error {
-	params := QueryParams{
+	params := types.QueryParams{
 		FirstName:      c.QueryParam("first_name"),
 		AgeGreaterThan: c.QueryParam("agt"),
 		AgeLessThan:    c.QueryParam("alt"),
