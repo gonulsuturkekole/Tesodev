@@ -10,7 +10,9 @@ require (
 	github.com/labstack/gommon v0.4.2
 	github.com/sirupsen/logrus v1.9.3
 	github.com/valyala/fasthttp v1.55.0
+	github.com/square/go-jose v2.6.0+incompatible
 	go.mongodb.org/mongo-driver v1.16.0
+	golang.org/x/crypto v0.25.0
 )
 
 require (
@@ -30,10 +32,10 @@ require (
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
-	golang.org/x/crypto v0.25.0 // indirect
 	golang.org/x/net v0.27.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
+	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 
 )

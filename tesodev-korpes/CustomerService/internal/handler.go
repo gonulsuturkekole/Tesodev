@@ -8,10 +8,10 @@ import (
 	_ "go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 	"strconv"
-	"strings"
 	_ "strings"
+	"tesodev-korpes/CustomerService/authentication"
 	"tesodev-korpes/CustomerService/internal/types"
-	_ "tesodev-korpes/pkg"
+	"tesodev-korpes/pkg"
 	"tesodev-korpes/pkg/log"
 )
 
@@ -25,65 +25,56 @@ func NewHandler(e *echo.Echo, service *Service) {
 	handler := &Handler{service: service, validate: validator.New()}
 
 	g := e.Group("/customer")
-	g.GET("/:id", handler.GetByID)
-	g.POST("/", handler.Create)
-	g.PUT("/:id", handler.Update)
-	g.PATCH("/:id", handler.PartialUpdate)
-	g.DELETE("/:id", handler.Delete)
+	g.GET("/:id", handler.GetByID, pkg.Authenticate)
+	g.POST("/", handler.Create, pkg.Authenticate)
+	g.PUT("/:id", handler.Update, pkg.Authenticate)
+	g.PATCH("/:id", handler.PartialUpdate, pkg.Authenticate)
+	g.DELETE("/:id", handler.Delete, pkg.Authenticate)
 
 	e.POST("/login", handler.Login)
-	e.GET("/verify", handler.Verify)
-	e.GET("/customers", handler.GetCustomersByFilter) // Get endpoint for filter
+	e.GET("/verify", handler.Verify, pkg.Authenticate)                  //error verdi
+	e.GET("/customers", handler.GetCustomersByFilter, pkg.Authenticate) // Get endpoint for filter
 }
 func (h *Handler) Login(c echo.Context) error {
-	var user types.User
+	var user types.Customer
 	if err := c.Bind(&user); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid input"})
 	}
-
-	result, err := h.service.GetUser(c.Request().Context(), user.Username)
+	result, err := h.service.GetByID(c.Request().Context(), user.Id)
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid username"})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Internal server error"})
 	}
-
-	if result.Password != user.Password {
+	if result == nil {
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
+	}
+	if !authentication.CheckPasswordHash(user.Password, result.Password) {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid password"})
 	}
+	result.Token = authentication.JwtGenerator(result.Id, result.FirstName, result.LastName, "secret")
 
-	result.Token = JwtGenerator(result.Username, "secret")
-	//resp
 	resp := c.JSON(http.StatusOK, result)
 	log.Info("Status Ok")
 	return resp
 
 }
 func (h *Handler) Verify(c echo.Context) error {
-
-	tokenString := c.Request().Header.Get("Authorization")
-	if tokenString == "" {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Authorization header is required"})
-	}
-	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
-	claims, err := VerifyJWT(tokenString)
-	if err != nil {
+	userid := c.Get("id").(string)
+	if userid == "" {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid token"})
 	}
 
-	user, err := h.service.GetUser(c.Request().Context(), claims.Username)
+	user, err := h.service.GetByID(c.Request().Context(), userid)
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "User not found"})
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{"FirstName": user.FirstName, "LastName": user.LastName, "Email": user.Email})
-}
-
-func (h *Handler) GetUser(c echo.Context) error {
-	username := c.Param("username")
-	user, err := h.service.GetUser(c.Request().Context(), username)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
-	}
-	return c.JSON(http.StatusOK, user)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"Username":   user.Username,
+		"First Name": user.FirstName,
+		"Last Name":  user.LastName,
+		"Email":      user.Email,
+		"Age":        user.Age,
+	})
 }
 
 func (h *Handler) GetByID(c echo.Context) error {
@@ -106,7 +97,18 @@ func (h *Handler) Create(c echo.Context) error {
 		log.Error(err.Error())
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-
+	////Check if the username exists or not
+	//existingUser, err := h.service.GetUserById(c.Request().Context(), customerRequestModel.Username)
+	//if existingUser != nil {
+	//	return c.JSON(http.StatusBadRequest, map[string]interface{}{
+	//		"message": "Username already exists",
+	//	})
+	//}
+	//if err != nil {
+	//	return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+	//		"message": "Internal server error",
+	//	})
+	//}
 	if err := ValidateCustomer(&customerRequestModel, h.validate); err != nil {
 		if valErr, ok := err.(*ValidationError); ok {
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
