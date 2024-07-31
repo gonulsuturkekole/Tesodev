@@ -25,13 +25,14 @@ func NewHandler(e *echo.Echo, service *Service) {
 	handler := &Handler{service: service, validate: validator.New()}
 
 	g := e.Group("/customer")
-	g.GET("/:id", handler.GetByID, pkg.Authenticate)
-	g.POST("/", handler.Create, pkg.Authenticate)
-	g.PUT("/:id", handler.Update, pkg.Authenticate)
-	g.PATCH("/:id", handler.PartialUpdate, pkg.Authenticate)
-	g.DELETE("/:id", handler.Delete, pkg.Authenticate)
+	g.GET("/:id", handler.GetByID)
+	g.POST("/", handler.Create)
+	g.PUT("/:id", handler.Update)
+	g.PATCH("/:id", handler.PartialUpdate)
+	g.DELETE("/:id", handler.Delete)
 
 	e.POST("/login", handler.Login)
+
 	e.GET("/verify", handler.Verify, pkg.Authenticate)                  //error verdi
 	e.GET("/customers", handler.GetCustomersByFilter, pkg.Authenticate) // Get endpoint for filter
 }

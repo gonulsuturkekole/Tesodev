@@ -6,12 +6,12 @@ import (
 
 func ToOrderResponse(order *types.Order) *types.OrderResponseModel {
 	return &types.OrderResponseModel{
-		OrderName:       order.OrderName,
-		Price:           order.Price,
-		ShippingAddress: order.ShippingAddress,
-		PaymentMethod:   order.PaymentMethod,
-		CreatedAt:       order.CreatedAt,
-		UpdatedAt:       order.UpdatedAt,
+		CustomerId:     order.CustomerId,
+		OrderName:      order.OrderName,
+		ShipmentStatus: order.ShipmentStatus,
+		PaymentMethod:  order.PaymentMethod,
+		CreatedAt:      order.CreatedAt,
+		UpdatedAt:      order.UpdatedAt,
 	}
 
 }

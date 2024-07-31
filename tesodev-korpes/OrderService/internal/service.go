@@ -30,9 +30,9 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Order, error) 
 	return order, nil
 }
 
-func (s *Service) CreateOrderService(ctx context.Context, customerID string, orderReq *types.OrderRequestModel) (string, error) {
+func (s *Service) CreateOrderService(ctx context.Context, customerID string, orderReq *types.OrderRequestModel, token string) (string, error) {
 
-	customer, err := s.getCustomerByID(customerID)
+	customer, err := s.getCustomerByID(customerID, token)
 	if err != nil {
 		return "", err
 	}
@@ -41,10 +41,9 @@ func (s *Service) CreateOrderService(ctx context.Context, customerID string, ord
 	}
 
 	order := &types.Order{
-		CustomerId:      customerID,
-		Price:           orderReq.Price,
-		ShippingAddress: orderReq.ShippingAddress,
-		PaymentMethod:   orderReq.PaymentMethod,
+		CustomerId:    customerID,
+		OrderTotal:    orderReq.OrderTotal,
+		PaymentMethod: orderReq.PaymentMethod,
 	}
 
 	orderID := uuid.New().String()
@@ -68,9 +67,7 @@ func (s *Service) Update(ctx context.Context, id string, orderUpdateModel types.
 	}
 
 	order.OrderName = orderUpdateModel.OrderName
-	order.Price = orderUpdateModel.Price
-	order.Stock = orderUpdateModel.Stock
-	order.ShippingAddress = orderUpdateModel.ShippingAddress
+	order.ShipmentStatus = orderUpdateModel.ShipmentStatus
 	order.PaymentMethod = orderUpdateModel.PaymentMethod
 	order.UpdatedAt = now
 	return s.repo.Update(ctx, id, order)

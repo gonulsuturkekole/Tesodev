@@ -28,17 +28,30 @@ func CorrelationIDMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 func Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		tokenString := c.Request().Header.Get("Authentication")
+		// List of paths to skip
+		skipPaths := []string{"/login", "/customer"}
+
+		// Get the request path
+		reqPath := c.Path()
+
+		// Check if the request path should be skipped
+		for _, path := range skipPaths {
+			if strings.HasPrefix(reqPath, path) {
+				return next(c) // Skip the middleware
+			}
+		}
+		tokenString := c.Request().Header.Get("Authorization")
 		if tokenString == "" {
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "No Authentication header provided"})
+			return c.JSON(http.StatusUnauthorized, map[string]string{"error": "No Authorization header provided"})
 		}
 		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 
 		claims, err := authentication.VerifyJWT(tokenString)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
 		}
-		//username is chosen inside claims
+
+		// Set user information into the context
 		c.Set("id", claims.ID)
 		return next(c)
 	}
