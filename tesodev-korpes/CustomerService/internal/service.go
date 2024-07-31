@@ -179,7 +179,7 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 	return s.repo.Delete(ctx, id)
 }
 
-func (s *Service) GetCustomers(ctx context.Context, params QueryParams, page, limit int) ([]types.Customer, int64, error) {
+func (s *Service) GetCustomers(ctx context.Context, params types.QueryParams, page, limit int) ([]types.Customer, int64, error) {
 	return s.repo.GetCustomersByFilter(ctx, params.FirstName, params.AgeGreaterThan, params.AgeLessThan, page, limit)
 }
 

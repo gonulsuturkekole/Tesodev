@@ -19,6 +19,13 @@ type CustomerRequestModel struct {
 //		Password string `json:"-" bson:"password"`
 //		UserID   string `json:"id" 'bson:"id"`
 //	}
+
+type QueryParams struct {
+	FirstName      string `json:"first_name"`
+	AgeGreaterThan string `json:"agt"`
+	AgeLessThan    string `json:"alt"`
+}
+
 type CustomerResponseModel struct {
 	FirstName      string            `bson:"first_name" json:"first_name"`
 	LastName       string            `bson:"last_name" json:"last_name"`
