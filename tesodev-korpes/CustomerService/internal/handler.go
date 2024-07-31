@@ -58,7 +58,7 @@ func (h *Handler) Login(c echo.Context) error {
 
 }
 func (h *Handler) Verify(c echo.Context) error {
-	userid := c.Get("Id").(string)
+	userid := c.Get("id").(string)
 	if userid == "" {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid token"})
 	}

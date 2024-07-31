@@ -34,12 +34,12 @@ func Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 
-		_, err := authentication.VerifyJWT(tokenString)
+		claims, err := authentication.VerifyJWT(tokenString)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		}
 		//username is chosen inside claims
-		//c.Set("_id", claims.Id)
+		c.Set("id", claims.ID)
 		return next(c)
 	}
 }

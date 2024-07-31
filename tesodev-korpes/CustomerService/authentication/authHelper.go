@@ -28,29 +28,27 @@ func JwtGenerator(Id string, firstName string, lastName string, key string) stri
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(key)
+	tokenString, err := token.SignedString([]byte(key))
 	if err != nil {
 		return err.Error()
 	}
 	return tokenString
 }
-func VerifyJWT(tokenString string) (*jwt.Token, error) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+func VerifyJWT(tokenString string) (*Claims, error) { //token dönünce içindeki claimsleri okutamadık.
+	claims := &Claims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid
 		}
 		return secretKey, nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
-
 	if !token.Valid {
 		return nil, jwt.ErrSignatureInvalid
 	}
-
-	return token, nil
+	return claims, nil
 }
 
 // HashPassword hashes the given password using bcrypt and returns the hashed password as a string.
