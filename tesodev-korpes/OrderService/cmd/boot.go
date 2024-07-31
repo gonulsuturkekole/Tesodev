@@ -8,7 +8,7 @@ import (
 	"tesodev-korpes/pkg"
 )
 
-func BootOrderService(client *mongo.Client, e *echo.Echo) {
+func BootOrderService(client *mongo.Client, h_client *pkg.RestClient, e *echo.Echo) {
 	config := config3.GetOrderConfig("dev")
 	orderCol, err := pkg.GetMongoCollection(client, config.DbConfig.DBName, config.DbConfig.ColName)
 	if err != nil {
@@ -16,7 +16,7 @@ func BootOrderService(client *mongo.Client, e *echo.Echo) {
 	}
 
 	repo := internal.NewRepository(orderCol)
-	service := internal.NewService(repo)
+	service := internal.NewService(repo, h_client)
 	internal.NewHandler(e, service)
 
 	e.Logger.Fatal(e.Start(config.Port))

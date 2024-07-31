@@ -2,18 +2,22 @@ package internal
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/uuid"
 	"tesodev-korpes/OrderService/internal/types"
+	"tesodev-korpes/pkg"
 	"time"
 )
 
 type Service struct {
-	repo *Repository
+	repo   *Repository
+	client *pkg.RestClient
 }
 
-func NewService(repo *Repository) *Service {
+func NewService(repo *Repository, client *pkg.RestClient) *Service {
 	return &Service{
-		repo: repo,
+		repo:   repo,
+		client: client,
 	}
 }
 
@@ -23,34 +27,39 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Order, error) 
 		return nil, err
 	}
 
-	//challenge (everything should be observable somehow in the response or console (print)):
-	// 1) do something with using for loop by using customer model and manipulate it (you can add an additional field for it)
-	// 2) do something with switch-case
-	// 3) do something with goroutines (you should give us an example for both scenarios of not using goroutines and using)
-	// 3.1) calculate the elapsed time for both scenarios and show us the gained time
-	// 4) add an additional field and use maps
-	// 5) add an additional field and use arrays
-	// 6) manipulate an existing data to see how pointers and values work
 	return order, nil
 }
 
-func (s *Service) Create(ctx context.Context, order *types.Order) (string, error) {
-	// Generate a new UUID
-	orderID := uuid.New().String()
-	now := time.Now().Local()
+func (s *Service) CreateOrderService(ctx context.Context, customerID string, orderReq *types.OrderRequestModel) (string, error) {
 
-	// Set the customer's ID to the generated UUID
-	order.Id = orderID
-	order.CreatedAt = now
-	// Insert the customer data into MongoDB
-	_, err := s.repo.Create(ctx, order)
+	customer, err := s.getCustomerByID(customerID)
 	if err != nil {
 		return "", err
 	}
-	// Return the generated ID if the insertion is successful
+	if customer == nil {
+		return "", fmt.Errorf("customer not found")
+	}
+
+	order := &types.Order{
+		CustomerId:      customerID,
+		Price:           orderReq.Price,
+		ShippingAddress: orderReq.ShippingAddress,
+		PaymentMethod:   orderReq.PaymentMethod,
+	}
+
+	orderID := uuid.New().String()
+	now := time.Now().Local()
+	order.Id = orderID
+	order.CreatedAt = now
+	order.UpdatedAt = now
+
+	_, err = s.repo.Create(ctx, order)
+	if err != nil {
+		return "", err
+	}
+
 	return orderID, nil
 }
-
 func (s *Service) Update(ctx context.Context, id string, orderUpdateModel types.OrderUpdateModel) error {
 	order, err := s.GetByID(ctx, id)
 	now := time.Now().Local()

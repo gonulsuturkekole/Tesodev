@@ -5,7 +5,6 @@ import (
 	_ "go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 	"tesodev-korpes/OrderService/internal/types"
-	"tesodev-korpes/pkg/log"
 )
 
 type Handler struct {
@@ -17,10 +16,11 @@ func NewHandler(e *echo.Echo, service *Service) {
 
 	g := e.Group("/order")
 	g.GET("/:id", handler.GetByID)
-	g.POST("/", handler.Create)
+	g.POST("/:customer_id", handler.CreateOrder)
 	g.PUT("/:id", handler.Update)
 	g.PATCH("/:id", handler.PartialUpdate)
 	g.DELETE("/:id", handler.Delete)
+
 }
 
 func (h *Handler) GetByID(c echo.Context) error {
@@ -34,22 +34,24 @@ func (h *Handler) GetByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, orderResponse)
 }
 
-func (h *Handler) Create(c echo.Context) error {
-	var order *types.Order
+func (h *Handler) CreateOrder(c echo.Context) error {
+	var order types.OrderRequestModel
+
+	customerid := c.Param("customer_id")
+	// c. header dan jwt al
+	//c.Request().Header.Get("Authentication")
 
 	if err := c.Bind(&order); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
+	id, err := h.service.CreateOrderService(c.Request().Context(), customerid, &order)
 
-	id, err := h.service.Create(c.Request().Context(), order)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	log.Info("order create edildi")
-
 	response := map[string]interface{}{
-		"message":    "Successed!",
+		"message":    "Success!",
 		"creadtedId": id,
 	}
 

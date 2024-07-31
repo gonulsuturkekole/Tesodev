@@ -4,6 +4,7 @@ import "time"
 
 type Order struct {
 	Id              string    `bson:"_id" json:"id"`
+	CustomerId      string    `bson:"customer_id" json:"customer_id"`
 	OrderName       string    `bson:"order_name" json:"order_name"`
 	Price           float64   `bson:"price" json:"price"`
 	Stock           int       `bson:"stock" json:"stock"`

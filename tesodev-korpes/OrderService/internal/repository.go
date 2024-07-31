@@ -20,15 +20,9 @@ func NewRepository(col *mongo.Collection) *Repository {
 
 func (r *Repository) FindByID(ctx context.Context, id string) (*types.Order, error) {
 	var order *types.Order
-	/*
-		return customer, nil*/
+
 	filter := bson.M{"_id": id}
-
-	// Define a variable to hold the result
-	//var customer Customer
-
-	// Perform the find operation
-
+	
 	err := r.collection.FindOne(ctx, filter).Decode(&order)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {

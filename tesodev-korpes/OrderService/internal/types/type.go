@@ -3,7 +3,7 @@ package types
 import "time"
 
 type OrderRequestModel struct {
-	Id              string  `bson:"_id" json:"id"`
+	CustomerId      string  `bson:"customer_id" json:"customer_id"`
 	Price           float64 `bson:"price" json:"price"`
 	Stock           int     `bson:"stock" json:"stock"`
 	ShippingAddress string  `bson:"shipping_address" json:"shipping_address"`
@@ -11,6 +11,7 @@ type OrderRequestModel struct {
 }
 
 type OrderResponseModel struct {
+	CustomerId      string  `bson:"customer_id" json:"customer_id"`
 	OrderName       string  `bson:"order_name" json:"order_name"`
 	Price           float64 `bson:"price" json:"price"`
 	ShippingAddress string  `bson:"shipping_address" json:"shipping_address"`
