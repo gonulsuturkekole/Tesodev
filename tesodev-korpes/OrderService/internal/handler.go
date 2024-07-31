@@ -39,7 +39,7 @@ func (h *Handler) CreateOrder(c echo.Context) error {
 
 	customerid := c.Param("customer_id")
 	// c. header dan jwt al
-	token := c.Request().Header.Get("Authorization")
+	token := c.Request().Header.Get("Authentication")
 
 	if err := c.Bind(&order); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())

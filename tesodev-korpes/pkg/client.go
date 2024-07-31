@@ -21,7 +21,7 @@ func (c *RestClient) DoGetRequest(URI string, respModel any, token string) error
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 	req.SetRequestURI(URI)
-	req.Header.Set("Authorization", token)
+	req.Header.Set("Authentication", token)
 	req.Header.SetMethod(fasthttp.MethodGet)
 	resp := fasthttp.AcquireResponse()
 	defer fasthttp.ReleaseResponse(resp)

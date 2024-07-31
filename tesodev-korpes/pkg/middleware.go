@@ -40,9 +40,9 @@ func Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 				return next(c) // Skip the middleware
 			}
 		}
-		tokenString := c.Request().Header.Get("Authorization")
+		tokenString := c.Request().Header.Get("Authentication")
 		if tokenString == "" {
-			return c.JSON(http.StatusUnauthorized, map[string]string{"error": "No Authorization header provided"})
+			return c.JSON(http.StatusUnauthorized, map[string]string{"error": "No Authentication header provided"})
 		}
 		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 
