@@ -2,6 +2,7 @@ package authentication
 
 import (
 	"github.com/dgrijalva/jwt-go"
+	_ "github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 	_ "time"
