@@ -56,14 +56,15 @@ func main() {
 	// the program to determine its behavior based on user input provided at runtime.
 
 	switch input {
+	case "both":
+		go cmd.BootCustomerService(client, e) //  allowing both cmd.BootCustomerService(client, e)
+		// and BootOrderService(client, e) functions to run simultaneously in the 'both' case
+		go orderCmd.BootOrderService(client, e)
 	case "customer":
 		cmd.BootCustomerService(client, e)
 	case "order":
 		orderCmd.BootOrderService(client, e)
-	case "both":
-		cmd.BootCustomerService(client, e) //  allowing both cmd.BootCustomerService(client, e)
-		// and BootOrderService(client, e) functions to run simultaneously in the 'both' case
-		go orderCmd.BootOrderService(client, e)
+
 	default:
 		panic("Invalid input. Use 'customer', 'order', or 'both'.")
 	}
