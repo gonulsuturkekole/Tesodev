@@ -49,6 +49,8 @@ func main() {
 	e.Use(stats.Process)
 	e.Use(middlewares.ScopedServiceMiddleware)*/
 
+	h_client := pkg.NewRestClient()
+
 	if len(os.Args) < 2 {
 		panic("Please provide a service to start: customer, order, or both")
 	}
@@ -56,15 +58,15 @@ func main() {
 	// the program to determine its behavior based on user input provided at runtime.
 
 	switch input {
-	case "both":
-		go cmd.BootCustomerService(client, e) //  allowing both cmd.BootCustomerService(client, e)
-		// and BootOrderService(client, e) functions to run simultaneously in the 'both' case
-		go orderCmd.BootOrderService(client, e)
 	case "customer":
 		cmd.BootCustomerService(client, e)
 	case "order":
-		orderCmd.BootOrderService(client, e)
-
+		orderCmd.BootOrderService(client, h_client, e)
+	case "both":
+		cmd.BootCustomerService(client, e)
+		//  allowing both cmd.BootCustomerService(client, e)
+		// and BootOrderService(client, e) functions to run simultaneously in the 'both' case
+		go orderCmd.BootOrderService(client, h_client, e)
 	default:
 		panic("Invalid input. Use 'customer', 'order', or 'both'.")
 	}
