@@ -3,6 +3,10 @@ package pkg
 import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	_ "github.com/labstack/echo/v4"
+	"net/http"
+	"strings"
+	"tesodev-korpes/CustomerService/authentication"
 )
 
 func CorrelationIDMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
@@ -22,14 +26,20 @@ func CorrelationIDMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-/*func VerifyToken(c echo.Context) string {
+func Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		tokenString := c.Request().Header.Get("Authentication")
+		if tokenString == "" {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "No Authentication header provided"})
+		}
+		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 
-	tokenString := c.Request().Header.Get("Authorization")
-	if tokenString == "" {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Authorization header is required"})
+		_, err := authentication.VerifyJWT(tokenString)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		}
+		//username is chosen inside claims
+		//c.Set("_id", claims.Id)
+		return next(c)
 	}
-	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
-
-	return tokenString
 }
-*/

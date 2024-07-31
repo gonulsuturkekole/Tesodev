@@ -15,13 +15,15 @@ func ToCustomerResponse(customer *types.Customer) *types.CustomerResponseModel {
 	return &types.CustomerResponseModel{
 		FirstName:      customer.FirstName,
 		LastName:       customer.LastName,
+		Username:       customer.Username,
+		Password:       customer.Password,
+		Age:            customer.Age,
 		Email:          customer.Email,
 		Phone:          customer.Phone,
 		Address:        customer.Address,
 		AdditionalInfo: customer.AdditionalInfo,
 		ContactOption:  customer.ContactOption,
 	}
-
 }
 
 func ValidateEmail(r *types.CustomerRequestModel) error {

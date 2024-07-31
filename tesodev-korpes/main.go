@@ -42,7 +42,6 @@ func main() {
 
 	e := echo.New()
 	e.Use(pkg.CorrelationIDMiddleware)
-
 	e.Use(middlewares.Logger())
 	/*stats := middlewares.NewStats()
 	e.Use(middleware.Logger())

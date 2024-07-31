@@ -14,23 +14,22 @@ type CustomerRequestModel struct {
 	CreatedAt time.Time `bson:"created_at" json:"created_at"`
 }
 
-type User struct {
-	Username string `bson:"username" json:"username" validate:"required"`
-	Password string `bson:"password" json:"password" validate:"required"`
-	Token    string `bson:"token" json:"token"`
-}
-
+//	type User struct {
+//		Username string `json:"username" 'bson:"username"`
+//		Password string `json:"-" bson:"password"`
+//		UserID   string `json:"id" 'bson:"id"`
+//	}
 type CustomerResponseModel struct {
 	FirstName      string            `bson:"first_name" json:"first_name"`
 	LastName       string            `bson:"last_name" json:"last_name"`
+	Username       string            `bson:"username" json:"username"`
+	Password       string            `bson:"password" json:"password"`
+	Age            int               `bson:"age" json:"age"`
 	Email          string            `bson:"email" json:"email"`
 	Phone          string            `bson:"phone" json:"phone"`
 	Address        string            `bson:"address" json:"address"`
 	AdditionalInfo map[string]string `bson:"additional_info" json:"additional_info"`
 	ContactOption  []string          `bson:"contact_option" json:"contact_option"`
-	Age            int               `bson:"age" json:"age"`
-	Username       string            `bson:"username" json:"username"`
-	Password       string            `bson:"password" json:"password"`
 	Token          string            `bson:"token" json:"token"`
 }
 

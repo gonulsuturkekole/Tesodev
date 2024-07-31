@@ -22,4 +22,5 @@ type Customer struct {
 	Password       string            `bson:"password" json:"password" validate:"required"`
 	CreatedAt      time.Time         `bson:"created_at" json:"created_at"`
 	UpdatedAt      time.Time         `bson:"updated_at" json:"updated_at"`
+	Token          string            `bson:"token" json:"token"`
 }

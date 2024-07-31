@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"strings"
+	"tesodev-korpes/CustomerService/authentication"
 	"tesodev-korpes/CustomerService/internal/types"
 	"time"
 	"unicode"
@@ -24,13 +25,13 @@ func (s *Service) GetCustomersWithSecondLetterA(ctx context.Context) ([]types.Cu
 	return s.repo.GetCustomersWithSecondLetterA(ctx)
 }
 
-func (s *Service) GetUser(ctx context.Context, username string) (types.CustomerResponseModel, error) {
-	user, err := s.repo.GetUser(ctx, username)
-	if err != nil {
-		return types.CustomerResponseModel{}, err
-	}
-	return user, nil
-}
+//func (s *Service) GetUser(ctx context.Context, username string) (*types.CustomerResponseModel, error) {
+//	user, err := s.repo.GetUser(ctx, username)
+//	if err != nil {
+//		return nil, err
+//	}
+//	return user, nil
+//}
 
 func (s *Service) GetByID(ctx context.Context, id string) (*types.Customer, error) {
 	customer, err := s.repo.FindByID(ctx, id)
@@ -114,7 +115,7 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Customer, erro
 		fmt.Println("Additional Info:", customer.AdditionalInfo)
 	}
 
-	customer.ContactOption = append(customer.ContactOption, "hi")
+	customer.ContactOption = append(customer.ContactOption, "")
 	//customer.ContactOption = []string{""}
 
 	return customer, nil
@@ -122,12 +123,14 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Customer, erro
 
 // Create method creates a new customer with a custom UUID as the ID
 func (s *Service) Create(ctx context.Context, customerRequestModel types.CustomerRequestModel) (string, error) {
-
+	hashedPassword, err := authentication.HashPassword(customerRequestModel.Password)
+	if err != nil {
+		return "", err
+	}
 	// Check if the customer data is valid
 	//if err := validateCustomer(customerRequestModel); err != nil {
 	//fmt.Println("Invalid customer data:", err)
 	//return "", err
-
 	// Generate a new UUID
 	customID := uuid.New().String()
 	now := time.Now().Local()
@@ -144,11 +147,11 @@ func (s *Service) Create(ctx context.Context, customerRequestModel types.Custome
 		CreatedAt: customerRequestModel.CreatedAt,
 		Id:        customID,
 		Username:  customerRequestModel.Username,
-		Password:  customerRequestModel.Password,
+		Password:  hashedPassword, //string(hashPassword)
 	}
 	//customer.Id = customID
 
-	_, err := s.repo.Create(ctx, customer)
+	_, err = s.repo.Create(ctx, customer)
 	if err != nil {
 		return "", err
 	}
@@ -177,7 +180,6 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 }
 
 func (s *Service) GetCustomers(ctx context.Context, params QueryParams, page, limit int) ([]types.Customer, int64, error) {
-
 	return s.repo.GetCustomersByFilter(ctx, params.FirstName, params.AgeGreaterThan, params.AgeLessThan, page, limit)
 }
 
