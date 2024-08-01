@@ -11,7 +11,6 @@ import (
 	_ "strings"
 	"tesodev-korpes/CustomerService/authentication"
 	"tesodev-korpes/CustomerService/internal/types"
-	"tesodev-korpes/pkg"
 	"tesodev-korpes/pkg/log"
 )
 
@@ -33,8 +32,8 @@ func NewHandler(e *echo.Echo, service *Service) {
 
 	e.POST("/login", handler.Login)
 
-	e.GET("/verify", handler.Verify, pkg.Authenticate)                  //error verdi
-	e.GET("/customers", handler.GetCustomersByFilter, pkg.Authenticate) // Get endpoint for filter
+	e.GET("/verify", handler.Verify)                  //error verdi
+	e.GET("/customers", handler.GetCustomersByFilter) // Get endpoint for filter
 }
 func (h *Handler) Login(c echo.Context) error {
 	var user types.Customer
@@ -98,18 +97,7 @@ func (h *Handler) Create(c echo.Context) error {
 		log.Error(err.Error())
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	////Check if the username exists or not
-	//existingUser, err := h.service.GetUserById(c.Request().Context(), customerRequestModel.Username)
-	//if existingUser != nil {
-	//	return c.JSON(http.StatusBadRequest, map[string]interface{}{
-	//		"message": "Username already exists",
-	//	})
-	//}
-	//if err != nil {
-	//	return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-	//		"message": "Internal server error",
-	//	})
-	//}
+
 	if err := ValidateCustomer(&customerRequestModel, h.validate); err != nil {
 		if valErr, ok := err.(*ValidationError); ok {
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{

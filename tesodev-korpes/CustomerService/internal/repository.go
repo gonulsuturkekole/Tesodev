@@ -22,7 +22,7 @@ func NewRepository(col *mongo.Collection) *Repository {
 	}
 }
 
-type Pager struct {
+type Pagination struct {
 	Page   int
 	Limit  int
 	Offset int
@@ -89,27 +89,27 @@ func (r *Repository) Delete(ctx context.Context, id string) error {
 	return err
 }
 
-func NewPager(page int, limit int) Pager {
-	pager := Pager{}
+func NewPager(page int, limit int) Pagination {
+	pagination := Pagination{}
 
 	if page < 1 {
-		pager.Page = 1
+		pagination.Page = 1
 	} else {
-		pager.Page = page
+		pagination.Page = page
 	}
 
 	if limit <= 0 {
-		pager.Limit = 0
+		pagination.Limit = 0
 	} else {
-		pager.Limit = limit
+		pagination.Limit = limit
 	}
 
-	return pager
+	return pagination
 }
 
 func (r *Repository) GetCustomersByFilter(ctx context.Context, firstName string, ageGreaterThan string, ageLessThan string, page int, limit int) ([]types.Customer, int64, error) {
 	var customers []types.Customer
-	pager := NewPager(page, limit)
+	pagination := NewPager(page, limit)
 
 	filter := bson.M{}
 	if firstName != "" {
@@ -144,8 +144,8 @@ func (r *Repository) GetCustomersByFilter(ctx context.Context, firstName string,
 		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError, map[string]string{"message": "Error counting customers"})
 	}
 
-	offset := (pager.Page - 1) * pager.Limit
-	pager.Offset = offset
+	offset := (pagination.Page - 1) * pagination.Limit
+	pagination.Offset = offset
 
 	opts := options.Find()
 	opts.SetSkip(int64(offset))

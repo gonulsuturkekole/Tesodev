@@ -46,13 +46,11 @@ func Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 
-		claims, err := authentication.VerifyJWT(tokenString)
+		_, err := authentication.VerifyJWT(tokenString, c)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
 		}
 
-		// Set user information into the context
-		c.Set("id", claims.ID)
 		return next(c)
 	}
 }
