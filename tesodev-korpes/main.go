@@ -6,6 +6,7 @@ import (
 	"os"
 	"sync"
 	"tesodev-korpes/CustomerService/cmd"
+	"tesodev-korpes/OrderService/client"
 	orderCmd "tesodev-korpes/OrderService/cmd"
 	"tesodev-korpes/pkg"
 	"tesodev-korpes/pkg/middlewares"
@@ -35,7 +36,7 @@ func main() {
 	//todo : what is dev,qa,prod ? explain why we are using them in the lecture
 	dbConf := config.GetDBConfig("dev")
 
-	client, err := pkg.GetMongoClient(dbConf.MongoDuration, dbConf.MongoClientURI)
+	client1, err := pkg.GetMongoClient(dbConf.MongoDuration, dbConf.MongoClientURI)
 	if err != nil {
 		panic(err)
 	}
@@ -49,7 +50,7 @@ func main() {
 	e.Use(stats.Process)
 	e.Use(middlewares.ScopedServiceMiddleware)*/
 
-	h_client := pkg.NewRestClient()
+	h_client := client.NewCustomerClient(pkg.NewRestClient())
 
 	if len(os.Args) < 2 {
 		panic("Please provide a service to start: customer, order, or both")
@@ -59,14 +60,14 @@ func main() {
 
 	switch input {
 	case "customer":
-		cmd.BootCustomerService(client, e)
+		cmd.BootCustomerService(client1, e)
 	case "order":
-		orderCmd.BootOrderService(client, h_client, e)
+		orderCmd.BootOrderService(client1, h_client, e)
 	case "both":
-		cmd.BootCustomerService(client, e)
+		cmd.BootCustomerService(client1, e)
 		//  allowing both cmd.BootCustomerService(client, e)
 		// and BootOrderService(client, e) functions to run simultaneously in the 'both' case
-		go orderCmd.BootOrderService(client, h_client, e)
+		go orderCmd.BootOrderService(client1, h_client, e)
 	default:
 		panic("Invalid input. Use 'customer', 'order', or 'both'.")
 	}

@@ -4,20 +4,22 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
+	"tesodev-korpes/OrderService/client"
+	_ "tesodev-korpes/OrderService/client"
 	"tesodev-korpes/OrderService/internal/types"
-	"tesodev-korpes/pkg"
+	_ "tesodev-korpes/pkg"
 	"time"
 )
 
 type Service struct {
-	repo   *Repository
-	client *pkg.RestClient
+	repo      *Repository
+	cusClient *client.CustomerClient
 }
 
-func NewService(repo *Repository, client *pkg.RestClient) *Service {
+func NewService(repo *Repository, cusClient *client.CustomerClient) *Service {
 	return &Service{
-		repo:   repo,
-		client: client,
+		repo:      repo,
+		cusClient: cusClient,
 	}
 }
 
@@ -27,12 +29,14 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Order, error) 
 		return nil, err
 	}
 
+	// if order nil (404 error)
+
 	return order, nil
 }
 
 func (s *Service) CreateOrderService(ctx context.Context, customerID string, orderReq *types.OrderRequestModel, token string) (string, error) {
 
-	customer, err := s.getCustomerByID(customerID, token)
+	customer, err := s.cusClient.GetCustomerByID(customerID, token)
 	if err != nil {
 		return "", err
 	}
@@ -41,6 +45,7 @@ func (s *Service) CreateOrderService(ctx context.Context, customerID string, ord
 	}
 
 	order := &types.Order{
+		Id:            uuid.New().String(),
 		CustomerId:    customerID,
 		OrderTotal:    orderReq.OrderTotal,
 		PaymentMethod: orderReq.PaymentMethod,

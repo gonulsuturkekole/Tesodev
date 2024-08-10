@@ -3,12 +3,13 @@ package cmd
 import (
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"
+	"tesodev-korpes/OrderService/client"
 	config3 "tesodev-korpes/OrderService/config"
 	"tesodev-korpes/OrderService/internal"
 	"tesodev-korpes/pkg"
 )
 
-func BootOrderService(client *mongo.Client, h_client *pkg.RestClient, e *echo.Echo) {
+func BootOrderService(client *mongo.Client, h_client *client.CustomerClient, e *echo.Echo) {
 	config := config3.GetOrderConfig("dev")
 	orderCol, err := pkg.GetMongoCollection(client, config.DbConfig.DBName, config.DbConfig.ColName)
 	if err != nil {
