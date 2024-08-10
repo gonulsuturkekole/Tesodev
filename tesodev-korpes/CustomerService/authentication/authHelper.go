@@ -3,7 +3,6 @@ package authentication
 import (
 	"github.com/dgrijalva/jwt-go"
 	_ "github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 	_ "time"
@@ -34,24 +33,6 @@ func JwtGenerator(Id string, firstName string, lastName string, key string) stri
 		return err.Error()
 	}
 	return tokenString
-}
-func VerifyJWT(tokenString string, c echo.Context) (*jwt.Token, error) { //token dönünce içindeki claimsleri okutamadık.
-	claims := &Claims{}
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, jwt.ErrSignatureInvalid
-		}
-		return secretKey, nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	if !token.Valid {
-		return nil, jwt.ErrSignatureInvalid
-	}
-
-	c.Set("id", claims.ID)
-	return token, nil
 }
 
 // HashPassword hashes the given password using bcrypt and returns the hashed password as a string.

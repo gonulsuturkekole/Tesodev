@@ -1,12 +1,13 @@
 package pkg
 
 import (
+	"bytes"
+	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	_ "github.com/labstack/echo/v4"
 	"net/http"
 	"strings"
-	"tesodev-korpes/CustomerService/authentication"
 )
 
 func CorrelationIDMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
@@ -28,29 +29,52 @@ func CorrelationIDMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 func Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		// List of paths to skip
-		skipPaths := []string{"/login", "/customer"}
-
-		// Get the request path
+		skipPaths := []string{"/login"}
 		reqPath := c.Path()
 
-		// Check if the request path should be skipped
 		for _, path := range skipPaths {
 			if strings.HasPrefix(reqPath, path) {
 				return next(c) // Skip the middleware
 			}
 		}
+
 		tokenString := c.Request().Header.Get("Authentication")
 		if tokenString == "" {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": "No Authentication header provided"})
 		}
 		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 
-		_, err := authentication.VerifyJWT(tokenString, c)
-		if err != nil {
-			return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+		// Verify token and handle logic
+		isVerified, err := VerifyTokenWithAPI(tokenString)
+		if err != nil || !isVerified {
+			return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid or expired token"})
 		}
 
 		return next(c)
 	}
+}
+
+// VerifyTokenWithAPI sends a request to the verify endpoint
+func VerifyTokenWithAPI(token string) (bool, error) {
+	// Create request payload
+	payload := map[string]string{"token": token}
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		return false, err
+	}
+
+	// Send POST request to verify endpoint
+	resp, err := http.Post("http://localhost:8001/verify", "application/json", bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		return false, err
+	}
+	defer resp.Body.Close()
+
+	// Check response status
+	if resp.StatusCode != http.StatusOK {
+		return false, nil
+	}
+
+	// Handle response body if needed (e.g., read JSON response)
+	return true, nil
 }

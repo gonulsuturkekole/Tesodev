@@ -57,6 +57,7 @@ func (h *Handler) Login(c echo.Context) error {
 	return resp
 
 }
+
 func (h *Handler) Verify(c echo.Context) error {
 	userid := c.Get("id").(string)
 	if userid == "" {
