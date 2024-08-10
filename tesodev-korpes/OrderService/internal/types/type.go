@@ -25,7 +25,7 @@ type OrderUpdateModel struct {
 }
 
 type CustomerResponse struct {
-	UserName string `bson:"user_name" json:"user_name"`
-	Name     string `bson:"name" json:"name"`
+	UserName string `bson:"username" json:"username"`
+	Name     string `bson:"first_name" json:"first_name"`
 	LastName string `bson:"last_name" json:"last_name"`
 }

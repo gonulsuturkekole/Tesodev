@@ -35,7 +35,10 @@ func (r *Repository) FindByID(ctx context.Context, id string) (*types.Order, err
 func (r *Repository) Create(ctx context.Context, order interface{}) (*mongo.InsertOneResult, error) {
 
 	res, err := r.collection.InsertOne(ctx, order)
-	return res, err
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
 func (r *Repository) Update(ctx context.Context, id string, order *types.Order) error {

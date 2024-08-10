@@ -19,8 +19,8 @@ func NewCustomerClient(restClient *pkg.RestClient) *CustomerClient {
 }
 
 // GetCustomerByID fetches a customer by ID using the RestClient.
-func (c *CustomerClient) GetCustomerByID(customerID string, token string) (*types.OrderResponseModel, error) {
-	var res types.OrderResponseModel
+func (c *CustomerClient) GetCustomerByID(customerID string, token string) (*types.CustomerResponse, error) {
+	var res types.CustomerResponse
 	uri := fmt.Sprintf("http://localhost:8001/customer/%s", customerID)
 	err := c.RestClient.DoGetRequest(uri, &res, token)
 	if err != nil {

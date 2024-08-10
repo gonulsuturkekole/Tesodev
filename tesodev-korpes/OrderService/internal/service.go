@@ -44,25 +44,24 @@ func (s *Service) CreateOrderService(ctx context.Context, customerID string, ord
 		return "", fmt.Errorf("customer not found")
 	}
 
-	order := &types.Order{
-		Id:            uuid.New().String(),
-		CustomerId:    customerID,
-		OrderTotal:    orderReq.OrderTotal,
-		PaymentMethod: orderReq.PaymentMethod,
-	}
-
-	orderID := uuid.New().String()
 	now := time.Now().Local()
-	order.Id = orderID
-	order.CreatedAt = now
-	order.UpdatedAt = now
+
+	order := &types.Order{
+		Id:               uuid.New().String(),
+		CustomerId:       customerID,
+		CustomerResponse: *customer,
+		OrderTotal:       orderReq.OrderTotal,
+		PaymentMethod:    orderReq.PaymentMethod,
+		CreatedAt:        now,
+		UpdatedAt:        now,
+	}
 
 	_, err = s.repo.Create(ctx, order)
 	if err != nil {
 		return "", err
 	}
 
-	return orderID, nil
+	return order.Id, nil
 }
 func (s *Service) Update(ctx context.Context, id string, orderUpdateModel types.OrderUpdateModel) error {
 	order, err := s.GetByID(ctx, id)
