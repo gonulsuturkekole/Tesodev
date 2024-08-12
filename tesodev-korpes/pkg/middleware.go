@@ -8,6 +8,7 @@ import (
 	_ "github.com/labstack/echo/v4"
 	"net/http"
 	"strings"
+	"tesodev-korpes/CustomerService/authentication"
 )
 
 func CorrelationIDMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
@@ -29,52 +30,44 @@ func CorrelationIDMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 func Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		skipPaths := []string{"/login"}
+		// List of paths to skip
+		skipPaths := []string{"/login", "/verify"}
+		// Get the request path
 		reqPath := c.Path()
-
+		// Check if the request path should be skipped
 		for _, path := range skipPaths {
 			if strings.HasPrefix(reqPath, path) {
 				return next(c) // Skip the middleware
 			}
 		}
-
 		tokenString := c.Request().Header.Get("Authentication")
 		if tokenString == "" {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": "No Authentication header provided"})
 		}
 		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 
-		// Verify token and handle logic
-		isVerified, err := VerifyTokenWithAPI(tokenString)
-		if err != nil || !isVerified {
-			return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid or expired token"})
+		// Check if the token is a valid JWT
+		if err := authentication.VerifyJWT(tokenString); err != nil {
+			return err
 		}
+		// Call the verify endpoint with the token
+		verifyUrl := "http://localhost:8001/verify"
+		req, err := http.NewRequest("GET", verifyUrl, nil)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create verification request"})
+		}
+		req.Header.Set("Authentication", tokenString)
+
+		client := &http.Client{}
+		res, err := client.Do(req)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Verification request failed"})
+		}
+		defer res.Body.Close()
+		//if res.StatusCode != http.StatusOK {
+		//	return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Token verification failed"})
+		//}
 
 		return next(c)
 	}
-}
-
-// VerifyTokenWithAPI sends a request to the verify endpoint
-func VerifyTokenWithAPI(token string) (bool, error) {
-	// Create request payload
-	payload := map[string]string{"token": token}
-	payloadBytes, err := json.Marshal(payload)
-	if err != nil {
-		return false, err
-	}
-
-	// Send POST request to verify endpoint
-	resp, err := http.Post("http://localhost:8001/verify", "application/json", bytes.NewBuffer(payloadBytes))
-	if err != nil {
-		return false, err
-	}
-	defer resp.Body.Close()
-
-	// Check response status
-	if resp.StatusCode != http.StatusOK {
-		return false, nil
-	}
-
-	// Handle response body if needed (e.g., read JSON response)
-	return true, nil
 }
