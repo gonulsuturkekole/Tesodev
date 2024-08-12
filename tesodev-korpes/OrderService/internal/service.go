@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/labstack/gommon/log"
+	"github.com/segmentio/kafka-go"
 	"tesodev-korpes/OrderService/internal/types"
 	"tesodev-korpes/pkg"
 	"time"
@@ -56,6 +58,12 @@ func (s *Service) CreateOrderService(ctx context.Context, customerID string, ord
 	if err != nil {
 		return "", err
 	}
+	// Sipariş oluşturulduktan sonra Kafka'ya orderID'yi gönderme
+	err = s.produceToKafka(orderID)
+	if err != nil {
+		log.Printf("Failed to produce orderID to Kafka: %v", err)
+		// Sipariş oluşturma başarılı olsa bile Kafka'ya gönderme başarısız olursa duruma göre burada hata döndürebilir veya işlem devam ettirilebilir
+	}
 
 	return orderID, nil
 }
@@ -76,4 +84,24 @@ func (s *Service) Update(ctx context.Context, id string, orderUpdateModel types.
 
 func (s *Service) Delete(ctx context.Context, id string) error {
 	return s.repo.Delete(ctx, id)
+}
+
+func (s *Service) produceToKafka(orderID string) error {
+	writer := kafka.Writer{
+		Addr:     kafka.TCP("localhost:9092"),
+		Topic:    "order-topic",
+		Balancer: &kafka.LeastBytes{},
+	}
+
+	err := writer.WriteMessages(context.Background(), kafka.Message{
+		Key:   []byte("OrderID"),
+		Value: []byte(orderID),
+	})
+
+	if err != nil {
+		return fmt.Errorf("failed to write message to Kafka: %w", err)
+	}
+
+	fmt.Printf("OrderID produced to Kafka: %s\n", orderID)
+	return writer.Close()
 }

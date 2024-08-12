@@ -163,3 +163,13 @@ func (r *Repository) GetCustomersByFilter(ctx context.Context, firstName string,
 	return customers, totalCount, nil
 
 }
+
+// ExistsByID checks if a customer exists by ID
+func (r *Repository) ExistsByID(ctx context.Context, id string) (bool, error) {
+	filter := bson.M{"id": bson.M{"$exists": true, "$eq": id}}
+	count, err := r.collection.CountDocuments(ctx, filter)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}

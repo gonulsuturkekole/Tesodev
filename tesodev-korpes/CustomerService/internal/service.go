@@ -182,6 +182,9 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 func (s *Service) GetCustomers(ctx context.Context, params types.QueryParams, page, limit int) ([]types.Customer, int64, error) {
 	return s.repo.GetCustomersByFilter(ctx, params.FirstName, params.AgeGreaterThan, params.AgeLessThan, page, limit)
 }
+func (s *Service) ExistsbyID(ctx context.Context, id string) (bool, error) {
+	return s.repo.ExistsByID(ctx, id)
+}
 
 /*func containsDigit(s string) bool {
 	for i := 0; i < len(s); i++ {

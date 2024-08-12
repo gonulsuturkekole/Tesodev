@@ -9,7 +9,7 @@ import (
 	_ "time"
 )
 
-var secretKey = []byte("secret")
+var SecretKey = []byte("secret")
 
 type Claims struct {
 	ID        string `json:"id"`
@@ -35,36 +35,54 @@ func JwtGenerator(Id string, firstName string, lastName string, key string) stri
 	}
 	return tokenString
 }
-func VerifyJWT(tokenString string, c echo.Context) (*jwt.Token, error) { //token dönünce içindeki claimsleri okutamadık.
-	claims := &Claims{}
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, jwt.ErrSignatureInvalid
-		}
-		return secretKey, nil
+
+// VerifyJWT checks if the token is a valid JWT
+func VerifyJWT(tokenString string) error {
+	_, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		return SecretKey, nil
 	})
+
 	if err != nil {
-		return nil, err
-	}
-	if !token.Valid {
-		return nil, jwt.ErrSignatureInvalid
+		return echo.ErrUnauthorized
 	}
 
-	c.Set("id", claims.ID)
-	return token, nil
+	return nil
 }
 
 // HashPassword hashes the given password using bcrypt and returns the hashed password as a string.
+//func HashPassword(password string) (string, error) {
+//	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+//	if err != nil {
+//		return "", err
+//	}
+//	return string(hashedPassword), nil
+//}
+//
+//// // CheckPasswordHash checks whether the given password matches the hashed password.
+//func CheckPasswordHash(password, hashedPassword string) bool {
+//	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+//	return err == nil
+//}
+
+// HashPassword hashes the given password using bcrypt and the secret key,
+// returning the hashed password as a string.
 func HashPassword(password string) (string, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	// Combine the secret key and password bytes
+	combined := append(SecretKey, []byte(password)...)
+	// Generate the bcrypt hash of the combined byte slice
+	hashedPassword, err := bcrypt.GenerateFromPassword(combined, bcrypt.DefaultCost)
 	if err != nil {
 		return "", err
 	}
 	return string(hashedPassword), nil
 }
 
-// // CheckPasswordHash checks whether the given password matches the hashed password.
+// CheckPasswordHash checks if the provided password matches the hashed password
+// by including the secret key in the comparison process.
 func CheckPasswordHash(password, hashedPassword string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	// Combine the secret key and password bytes
+	combined := append(SecretKey, []byte(password)...)
+	// Compare the hashed password with the combined byte slice
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), combined)
 	return err == nil
 }

@@ -2,9 +2,11 @@ package internal
 
 import (
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/go-playground/validator/v10"
 	_ "github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	_ "go.mongodb.org/mongo-driver/bson"
 	_ "go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 	"strconv"
@@ -40,14 +42,14 @@ func (h *Handler) Login(c echo.Context) error {
 	if err := c.Bind(&user); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid input"})
 	}
-	result, err := h.service.GetByID(c.Request().Context(), user.Id)
+	result, err := h.service.GetByID(c.Request().Context(), user.Id) //service
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Internal server error"})
 	}
 	if result == nil {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
 	}
-	if !authentication.CheckPasswordHash(user.Password, result.Password) {
+	if !authentication.CheckPasswordHash(user.Password, result.Password) { //service
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid password"})
 	}
 	result.Token = authentication.JwtGenerator(result.Id, result.FirstName, result.LastName, "secret")
@@ -58,23 +60,30 @@ func (h *Handler) Login(c echo.Context) error {
 
 }
 func (h *Handler) Verify(c echo.Context) error {
-	userid := c.Get("id").(string)
-	if userid == "" {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid token"})
-	}
-
-	user, err := h.service.GetByID(c.Request().Context(), userid)
-	if err != nil {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "User not found"})
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"Username":   user.Username,
-		"First Name": user.FirstName,
-		"Last Name":  user.LastName,
-		"Email":      user.Email,
-		"Age":        user.Age,
+	// Parsing token
+	authHeader := c.Request().Header.Get("Authentication")
+	token, err := jwt.ParseWithClaims(authHeader, &authentication.Claims{}, func(token *jwt.Token) (interface{}, error) {
+		return authentication.SecretKey, nil
 	})
+	if err != nil || !token.Valid {
+		c.Logger().Error("Token verification failed: ", err)
+		return echo.ErrUnauthorized
+	}
+	claims := token.Claims.(*authentication.Claims)
+	userID := claims.ID
+
+	exists, err := h.service.ExistsbyID(c.Request().Context(), userID)
+	if err != nil {
+		c.Logger().Error("Error checking user existence: ", err)
+		return echo.ErrInternalServerError
+	}
+
+	if !exists {
+		c.Logger().Error("User does not exist")
+		return echo.ErrUnauthorized
+	}
+
+	return c.String(http.StatusOK, "Token verified and user exists")
 }
 
 func (h *Handler) GetByID(c echo.Context) error {

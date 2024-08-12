@@ -29,11 +29,9 @@ func CorrelationIDMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 func Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// List of paths to skip
-		skipPaths := []string{"/login", "/customer"}
-
+		skipPaths := []string{"/login"}
 		// Get the request path
 		reqPath := c.Path()
-
 		// Check if the request path should be skipped
 		for _, path := range skipPaths {
 			if strings.HasPrefix(reqPath, path) {
@@ -46,10 +44,27 @@ func Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 
-		_, err := authentication.VerifyJWT(tokenString, c)
-		if err != nil {
-			return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+		// Check if the token is a valid JWT
+		if err := authentication.VerifyJWT(tokenString); err != nil {
+			return err
 		}
+		// Call the verify endpoint with the token
+		verifyUrl := "http://localhost:8001/verify"
+		req, err := http.NewRequest("GET", verifyUrl, nil)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create verification request"})
+		}
+		req.Header.Set("Authentication", tokenString)
+
+		client := &http.Client{}
+		res, err := client.Do(req)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Verification request failed"})
+		}
+		defer res.Body.Close()
+		//if res.StatusCode != http.StatusOK {
+		//	return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Token verification failed"})
+		//}
 
 		return next(c)
 	}
