@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/gommon/log"
 	"github.com/segmentio/kafka-go"
 	"net"
+	"net/http"
 	"strconv"
 	"tesodev-korpes/OrderService/client"
 	_ "tesodev-korpes/OrderService/client"
@@ -68,6 +69,21 @@ func (s *Service) CreateOrderService(ctx context.Context, customerID string, ord
 	if err != nil {
 		log.Printf("Failed to produce orderID to Kafka: %v", err)
 	}
+
+	res, err := s.SendFinanceRequest(token)
+	if err != nil {
+		log.Printf("Failed to send finance request: %v", err)
+		// Depending on your use case, you might want to handle this error differently
+		// (e.g., by returning it or proceeding with a warning)
+	}
+
+	defer res.Body.Close()
+
+	// Handle the response from the finance service, if needed
+	if res.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("finance service returned an error: %v", res.Status)
+	}
+
 	return order.Id, nil
 }
 func (s *Service) Update(ctx context.Context, id string, orderUpdateModel types.OrderUpdateModel) error {
@@ -131,4 +147,26 @@ func (s *Service) produceToKafka(orderID string) error {
 
 	fmt.Printf("OrderID produced to Kafka: %s\n", orderID)
 	return writer.Close()
+}
+func (s *Service) SendFinanceRequest(tokenString string) (*http.Response, error) {
+	// Define the URL to which the POST request will be sent
+	postUrl := "http://localhost:8003/finance"
+
+	// Create a new POST request
+	req, err := http.NewRequest("POST", postUrl, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set the necessary headers
+	req.Header.Set("Authentication", tokenString)
+
+	// Create an HTTP client and send the request
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }

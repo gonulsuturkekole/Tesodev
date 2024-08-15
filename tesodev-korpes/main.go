@@ -5,6 +5,7 @@ import (
 	_ "github.com/labstack/echo/v4"
 	"os"
 	"sync"
+	consumerCmd "tesodev-korpes/ConsumerService/cmd"
 	"tesodev-korpes/CustomerService/cmd"
 	"tesodev-korpes/OrderService/client"
 	orderCmd "tesodev-korpes/OrderService/cmd"
@@ -63,11 +64,14 @@ func main() {
 		cmd.BootCustomerService(client1, e)
 	case "order":
 		orderCmd.BootOrderService(client1, h_client, e)
+	case "consumer":
+		consumerCmd.BootConsumerService(client1, e)
 	case "both":
 		cmd.BootCustomerService(client1, e)
 		//  allowing both cmd.BootCustomerService(client, e)
 		// and BootOrderService(client, e) functions to run simultaneously in the 'both' case
 		go orderCmd.BootOrderService(client1, h_client, e)
+		go consumerCmd.BootConsumerService(client1, e)
 	default:
 		panic("Invalid input. Use 'customer', 'order', or 'both'.")
 	}
