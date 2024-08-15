@@ -58,6 +58,7 @@ func (s *Service) CreateOrderService(ctx context.Context, customerID string, ord
 	if err != nil {
 		return "", err
 	}
+
 	// Sipariş oluşturulduktan sonra Kafka'ya orderID'yi gönderme
 	err = s.produceToKafka(orderID)
 	if err != nil {
@@ -87,6 +88,30 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 }
 
 func (s *Service) produceToKafka(orderID string) error {
+
+	/*conn, err := kafka.Dial("tcp", "localhost:9092")
+	if err != nil {
+		panic(err.Error())
+	}
+	defer conn.Close()
+
+	controller, err := conn.Controller()
+	if err != nil {
+		panic(err.Error())
+	}
+	controllerConn, err := kafka.Dial("tcp", net.JoinHostPort(controller.Host, strconv.Itoa(controller.Port)))
+	if err != nil {
+		panic(err.Error())
+	}
+	defer controllerConn.Close()
+
+	topicConfigs := []kafka.TopicConfig{{Topic: "order-topic", NumPartitions: 1, ReplicationFactor: 1}}
+
+	err = controllerConn.CreateTopics(topicConfigs...)
+	if err != nil {
+		panic(err.Error())
+	}*/
+
 	writer := kafka.Writer{
 		Addr:     kafka.TCP("localhost:9092"),
 		Topic:    "order-topic",

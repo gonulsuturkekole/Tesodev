@@ -20,7 +20,6 @@ func ToCustomerResponse(customer *types.Customer) *types.CustomerResponseModel {
 		Age:            customer.Age,
 		Email:          customer.Email,
 		Phone:          customer.Phone,
-		Address:        customer.Address,
 		AdditionalInfo: customer.AdditionalInfo,
 		ContactOption:  customer.ContactOption,
 	}
