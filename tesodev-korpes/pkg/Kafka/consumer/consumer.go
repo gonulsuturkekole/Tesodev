@@ -19,16 +19,16 @@ func (c *Consumer) CreateConnection() {
 		Partition: 0,
 		MinBytes:  10e3, // 10KB
 		MaxBytes:  10e6, // 10MB
-		MaxWait:   time.Second * 10,
+		MaxWait:   time.Second * 30,
 		Dialer:    c.dialer,
 	})
 
-	c.reader.SetOffset(0)
+	c.reader.SetOffset(-1)
 }
 
 func (c *Consumer) Read(callback func(string, error)) {
 	// 10 saniyelik bir timeout süresi belirliyoruz
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()
 
 	message, err := c.reader.ReadMessage(ctx)

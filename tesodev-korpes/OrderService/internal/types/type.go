@@ -7,6 +7,7 @@ type OrderRequestModel struct {
 	OrderTotal    int     `bson:"order_total" json:"order_total"`
 	PaymentMethod string  `bson:"payment_method" json:"payment_method"`
 	Price         float64 `bson:"price" json:"price"`
+	OrderName     string  `bson:"order_name" json:"order_name"`
 }
 
 type OrderResponseModel struct {

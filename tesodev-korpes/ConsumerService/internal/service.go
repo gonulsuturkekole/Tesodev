@@ -68,10 +68,10 @@ func (s *Service) ConsumeTopic(ctx context.Context, token string) error {
 		}
 		log.Infof("Customer Info: %+v", customer)
 
-		/*priceWithVat := s.CalculateVat(order.Price)
+		priceWithVat := s.CalculateVat(order.Price)
 		log.Infof("Price with VAT: %.2f", priceWithVat)
 
-		order.Price = priceWithVat*/
+		order.Price = priceWithVat
 
 		// Consumer tipinde bir nesne oluşturun
 		consum := &types.Consumer{
