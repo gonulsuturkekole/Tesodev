@@ -3,22 +3,23 @@ package cmd
 import (
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"
+	"tesodev-korpes/ConsumerService/clientCon"
 	config4 "tesodev-korpes/ConsumerService/config"
 	"tesodev-korpes/ConsumerService/internal"
 	"tesodev-korpes/pkg"
 )
 
-func BootConsumerService(client *mongo.Client, e *echo.Echo) {
+func BootConsumerService(client *mongo.Client, clientCon *clientCon.ConsumerClient, e *echo.Echo) {
 
 	config := config4.GetConsumerConfig("dev")
 
-	// MongoDB koleksiyonunu al
 	consumerCol, err := pkg.GetMongoCollection(client, config.DbConfig.DBName, config.DbConfig.ColName)
 	if err != nil {
 		panic(err)
 	}
+	vatRate := 18.0
 	repo := internal.NewRepository(consumerCol)
-	service := internal.NewService(repo)
+	service := internal.NewService(repo, clientCon, vatRate)
 	internal.NewHandler(e, service)
 	e.Logger.Fatal(e.Start(config.Port))
 }

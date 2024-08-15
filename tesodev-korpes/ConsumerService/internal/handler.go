@@ -32,8 +32,11 @@ func NewHandler(e *echo.Echo, service *Service) {
 	}
 */
 func (h *Handler) Connect(c echo.Context) error {
-	// Kafka'dan gelen mesajları okumaya başla
-	err := h.service.ConsumeTopic(c.Request().Context())
+	// Header'dan token'ı al
+	token := c.Request().Header.Get("Authentication")
+
+	// Token'ı `ConsumeTopic` fonksiyonuna geçir
+	err := h.service.ConsumeTopic(c.Request().Context(), token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"error": err.Error(),

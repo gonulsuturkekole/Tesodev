@@ -33,7 +33,7 @@ func (c *RestClient) DoGetRequest(URI string, respModel any, token string) error
 	return nil
 }
 
-// ProcessClientResponseData processes the response from the client and decodes it into respModel
+// ProcessClientResponseData processes the response from the clientCon and decodes it into respModel
 func (c *RestClient) ProcessClientResponseData(req *fasthttp.Request, resp *fasthttp.Response, respModel any) error {
 	if err := c.Client.Do(req, resp); err != nil {
 		return fmt.Errorf("failed to perform request: %w", err)

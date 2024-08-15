@@ -19,6 +19,15 @@ func (r *Repository) ConsumeTopic(ctx context.Context) error {
 	return nil
 }
 
+func (r *Repository) Create(ctx context.Context, consum interface{}) (*mongo.InsertOneResult, error) {
+
+	res, err := r.collection.InsertOne(ctx, consum)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
 /*func (r *Repository) FindByID(ctx context.Context, id string) (*types.Order, error) {
 	var order *types.Order
 

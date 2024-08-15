@@ -27,18 +27,18 @@ func (c *Consumer) CreateConnection() {
 }
 
 func (c *Consumer) Read(callback func(string, error)) {
-	for {
-		ctx := context.Background()
-		message, err := c.reader.ReadMessage(ctx)
+	// 10 saniyelik bir timeout süresi belirliyoruz
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
 
-		if err != nil {
-			callback("", err)
-			return
-		}
-
-		// Mesajın UUID olduğunu varsayarak direkt string olarak ele alıyoruz
-		uuid := string(message.Value)
-
-		callback(uuid, nil)
+	message, err := c.reader.ReadMessage(ctx)
+	if err != nil {
+		callback("", err)
+		return
 	}
+
+	// Mesajın UUID olduğunu varsayarak direkt string olarak ele alıyoruz
+	uuid := string(message.Value)
+
+	callback(uuid, nil)
 }

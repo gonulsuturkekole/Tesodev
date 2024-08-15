@@ -57,6 +57,7 @@ func (s *Service) CreateOrderService(ctx context.Context, customerID string, ord
 		CustomerResponse: *customer,
 		OrderTotal:       orderReq.OrderTotal,
 		PaymentMethod:    orderReq.PaymentMethod,
+		Price:            orderReq.Price,
 		CreatedAt:        now,
 		UpdatedAt:        now,
 	}
@@ -161,7 +162,7 @@ func (s *Service) SendFinanceRequest(tokenString string) (*http.Response, error)
 	// Set the necessary headers
 	req.Header.Set("Authentication", tokenString)
 
-	// Create an HTTP client and send the request
+	// Create an HTTP clientCon and send the request
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
