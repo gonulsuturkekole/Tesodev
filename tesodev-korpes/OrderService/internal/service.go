@@ -6,6 +6,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/gommon/log"
 	"github.com/segmentio/kafka-go"
+	"net"
+	"strconv"
 	"tesodev-korpes/OrderService/client"
 	_ "tesodev-korpes/OrderService/client"
 	"tesodev-korpes/OrderService/internal/types"
@@ -88,13 +90,37 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 }
 
 func (s *Service) produceToKafka(orderID string) error {
+
+	conn, err := kafka.Dial("tcp", "localhost:9092")
+	if err != nil {
+		panic(err.Error())
+	}
+	defer conn.Close()
+
+	controller, err := conn.Controller()
+	if err != nil {
+		panic(err.Error())
+	}
+	controllerConn, err := kafka.Dial("tcp", net.JoinHostPort(controller.Host, strconv.Itoa(controller.Port)))
+	if err != nil {
+		panic(err.Error())
+	}
+	defer controllerConn.Close()
+
+	topicConfigs := []kafka.TopicConfig{{Topic: "order-topic", NumPartitions: 1, ReplicationFactor: 1}}
+
+	err = controllerConn.CreateTopics(topicConfigs...)
+	if err != nil {
+		panic(err.Error())
+	}
+
 	writer := kafka.Writer{
 		Addr:     kafka.TCP("localhost:9092"),
 		Topic:    "order-topic",
 		Balancer: &kafka.LeastBytes{},
 	}
 
-	err := writer.WriteMessages(context.Background(), kafka.Message{
+	err = writer.WriteMessages(context.Background(), kafka.Message{
 		Key:   []byte("OrderID"),
 		Value: []byte(orderID),
 	})
