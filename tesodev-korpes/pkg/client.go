@@ -39,7 +39,7 @@ func (c *RestClient) ProcessClientResponseData(req *fasthttp.Request, resp *fast
 		return fmt.Errorf("failed to perform request: %w", err)
 	}
 	if resp.StatusCode() != fasthttp.StatusOK {
-		return fmt.Errorf("Customer not found. Expected status code 200 but got %d", resp.StatusCode())
+		return fmt.Errorf("Customer not found, expected status code 200 but got %d", resp.StatusCode())
 	}
 	contentType := resp.Header.Peek("Content-Type")
 	if bytes.Index(contentType, []byte("application/json")) != 0 {

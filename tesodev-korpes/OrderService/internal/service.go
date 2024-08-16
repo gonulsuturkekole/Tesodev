@@ -6,20 +6,22 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/gommon/log"
 	"github.com/segmentio/kafka-go"
+	"tesodev-korpes/OrderService/client"
+	_ "tesodev-korpes/OrderService/client"
 	"tesodev-korpes/OrderService/internal/types"
-	"tesodev-korpes/pkg"
+	_ "tesodev-korpes/pkg"
 	"time"
 )
 
 type Service struct {
-	repo   *Repository
-	client *pkg.RestClient
+	repo      *Repository
+	cusClient *client.CustomerClient
 }
 
-func NewService(repo *Repository, client *pkg.RestClient) *Service {
+func NewService(repo *Repository, cusClient *client.CustomerClient) *Service {
 	return &Service{
-		repo:   repo,
-		client: client,
+		repo:      repo,
+		cusClient: cusClient,
 	}
 }
 
@@ -29,12 +31,14 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Order, error) 
 		return nil, err
 	}
 
+	// if order nil (404 error)
+
 	return order, nil
 }
 
 func (s *Service) CreateOrderService(ctx context.Context, customerID string, orderReq *types.OrderRequestModel, token string) (string, error) {
 
-	customer, err := s.getCustomerByID(customerID, token)
+	customer, err := s.cusClient.GetCustomerByID(customerID, token)
 	if err != nil {
 		return "", err
 	}
@@ -42,31 +46,27 @@ func (s *Service) CreateOrderService(ctx context.Context, customerID string, ord
 		return "", fmt.Errorf("customer not found")
 	}
 
-	order := &types.Order{
-		CustomerId:    customerID,
-		OrderTotal:    orderReq.OrderTotal,
-		PaymentMethod: orderReq.PaymentMethod,
-	}
-
-	orderID := uuid.New().String()
 	now := time.Now().Local()
-	order.Id = orderID
-	order.CreatedAt = now
-	order.UpdatedAt = now
+
+	order := &types.Order{
+		Id:               uuid.New().String(),
+		CustomerId:       customerID,
+		CustomerResponse: *customer,
+		OrderTotal:       orderReq.OrderTotal,
+		PaymentMethod:    orderReq.PaymentMethod,
+		CreatedAt:        now,
+		UpdatedAt:        now,
+	}
 
 	_, err = s.repo.Create(ctx, order)
 	if err != nil {
 		return "", err
 	}
-
-	// Sipariş oluşturulduktan sonra Kafka'ya orderID'yi gönderme
-	err = s.produceToKafka(orderID)
+	err = s.produceToKafka(order.Id)
 	if err != nil {
 		log.Printf("Failed to produce orderID to Kafka: %v", err)
-		// Sipariş oluşturma başarılı olsa bile Kafka'ya gönderme başarısız olursa duruma göre burada hata döndürebilir veya işlem devam ettirilebilir
 	}
-
-	return orderID, nil
+	return order.Id, nil
 }
 func (s *Service) Update(ctx context.Context, id string, orderUpdateModel types.OrderUpdateModel) error {
 	order, err := s.GetByID(ctx, id)
@@ -88,30 +88,6 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 }
 
 func (s *Service) produceToKafka(orderID string) error {
-
-	/*conn, err := kafka.Dial("tcp", "localhost:9092")
-	if err != nil {
-		panic(err.Error())
-	}
-	defer conn.Close()
-
-	controller, err := conn.Controller()
-	if err != nil {
-		panic(err.Error())
-	}
-	controllerConn, err := kafka.Dial("tcp", net.JoinHostPort(controller.Host, strconv.Itoa(controller.Port)))
-	if err != nil {
-		panic(err.Error())
-	}
-	defer controllerConn.Close()
-
-	topicConfigs := []kafka.TopicConfig{{Topic: "order-topic", NumPartitions: 1, ReplicationFactor: 1}}
-
-	err = controllerConn.CreateTopics(topicConfigs...)
-	if err != nil {
-		panic(err.Error())
-	}*/
-
 	writer := kafka.Writer{
 		Addr:     kafka.TCP("localhost:9092"),
 		Topic:    "order-topic",

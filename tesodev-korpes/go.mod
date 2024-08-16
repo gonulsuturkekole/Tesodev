@@ -3,6 +3,7 @@ module tesodev-korpes
 go 1.22
 
 require (
+	github.com/confluentinc/confluent-kafka-go v1.9.2
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-playground/validator/v10 v10.22.0
 	github.com/google/uuid v1.6.0

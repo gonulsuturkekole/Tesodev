@@ -62,6 +62,7 @@ func (h *Handler) Login(c echo.Context) error {
 	return resp
 
 }
+
 func (h *Handler) Verify(c echo.Context) error {
 	// Parsing token
 	authHeader := c.Request().Header.Get("Authentication")

@@ -23,3 +23,9 @@ type OrderUpdateModel struct {
 	PaymentMethod  string    `bson:"payment_method" json:"payment_method"`
 	UpdatedAt      time.Time `bson:"updated_at" json:"updated_at"`
 }
+
+type CustomerResponse struct {
+	UserName string `bson:"username" json:"username"`
+	Name     string `bson:"first_name" json:"first_name"`
+	LastName string `bson:"last_name" json:"last_name"`
+}

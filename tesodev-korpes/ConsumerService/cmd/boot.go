@@ -2,14 +2,15 @@ package cmd
 
 import (
 	"github.com/labstack/echo/v4"
+	_ "github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"
-	"tesodev-korpes/OrderService/client"
+	"tesodev-korpes/ConsumerService/internal"
+	_ "tesodev-korpes/OrderService/client"
 	config3 "tesodev-korpes/OrderService/config"
-	"tesodev-korpes/OrderService/internal"
 	"tesodev-korpes/pkg"
 )
 
-func BootOrderService(client *mongo.Client, h_client *client.CustomerClient, e *echo.Echo) {
+func BootOrderService(client *mongo.Client, e *echo.Echo) {
 	config := config3.GetOrderConfig("dev")
 	orderCol, err := pkg.GetMongoCollection(client, config.DbConfig.DBName, config.DbConfig.ColName)
 	if err != nil {
@@ -17,7 +18,7 @@ func BootOrderService(client *mongo.Client, h_client *client.CustomerClient, e *
 	}
 
 	repo := internal.NewRepository(orderCol)
-	service := internal.NewService(repo, h_client)
+	service := internal.NewService(repo)
 	internal.NewHandler(e, service)
 
 	e.Logger.Fatal(e.Start(config.Port))

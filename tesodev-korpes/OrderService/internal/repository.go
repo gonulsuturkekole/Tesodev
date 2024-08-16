@@ -22,20 +22,23 @@ func (r *Repository) FindByID(ctx context.Context, id string) (*types.Order, err
 	var order *types.Order
 
 	filter := bson.M{"_id": id}
-	
+
 	err := r.collection.FindOne(ctx, filter).Decode(&order)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("no order found with ID %s", id)
+			return nil, fmt.Errorf("no order found with ID %s", id) //nil,nil
 		}
 	}
-	return order, nil
+	return order, nil //error
 }
 
 func (r *Repository) Create(ctx context.Context, order interface{}) (*mongo.InsertOneResult, error) {
 
 	res, err := r.collection.InsertOne(ctx, order)
-	return res, err
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
 func (r *Repository) Update(ctx context.Context, id string, order *types.Order) error {
