@@ -17,9 +17,9 @@ func BootConsumerService(client *mongo.Client, clientCon *clientCon.ConsumerClie
 	if err != nil {
 		panic(err)
 	}
-	vatRate := 18.0
+
 	repo := internal.NewRepository(consumerCol)
-	service := internal.NewService(repo, clientCon, vatRate)
+	service := internal.NewService(repo, clientCon)
 	internal.NewHandler(e, service)
 	e.Logger.Fatal(e.Start(config.Port))
 }

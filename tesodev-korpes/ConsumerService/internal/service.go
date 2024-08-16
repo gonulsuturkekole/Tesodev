@@ -11,6 +11,8 @@ import (
 	"tesodev-korpes/pkg/kafka/consumer"
 )
 
+const defaultVatRate = 18.0
+
 type Service struct {
 	repo      *Repository
 	Consumer  *consumer.Consumer
@@ -18,7 +20,7 @@ type Service struct {
 	vatRate   float64
 }
 
-func NewService(repo *Repository, conClient *clientCon.ConsumerClient, vatRate float64) *Service {
+func NewService(repo *Repository, conClient *clientCon.ConsumerClient) *Service {
 	// Kafka consumer'ı başlat
 	consumer := &consumer.Consumer{Topic: "order-topic"}
 	consumer.CreateConnection()
@@ -27,7 +29,7 @@ func NewService(repo *Repository, conClient *clientCon.ConsumerClient, vatRate f
 		repo:      repo,
 		Consumer:  consumer,
 		conClient: conClient,
-		vatRate:   vatRate,
+		vatRate:   defaultVatRate,
 	}
 }
 
