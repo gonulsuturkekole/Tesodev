@@ -28,3 +28,17 @@ func (c *CustomerClient) GetCustomerByID(customerID string, token string) (*type
 	}
 	return &res, nil
 }
+
+func (c *CustomerClient) SendFinanceRequest(tokenString string) error {
+	// Define the URL to which the POST request will be sent
+	postUrl := "http://localhost:8003/finance"
+
+	// Make the POST request using the RestClient, ignoring the response
+	err := c.RestClient.DoPostRequest(postUrl, nil, nil, tokenString)
+	if err != nil {
+		return fmt.Errorf("failed to send finance request: %w", err)
+	}
+
+	// No response needed, just return nil on success
+	return nil
+}
