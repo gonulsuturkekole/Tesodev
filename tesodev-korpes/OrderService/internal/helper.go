@@ -10,6 +10,8 @@ func ToOrderResponse(order *types.Order) *types.OrderResponseModel {
 		OrderName:      order.OrderName,
 		ShipmentStatus: order.ShipmentStatus,
 		PaymentMethod:  order.PaymentMethod,
+		OrderTotal:     order.OrderTotal,
+		Price:          order.Price,
 		CreatedAt:      order.CreatedAt,
 		UpdatedAt:      order.UpdatedAt,
 	}

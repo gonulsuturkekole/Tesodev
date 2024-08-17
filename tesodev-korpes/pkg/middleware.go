@@ -29,12 +29,20 @@ func CorrelationIDMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 func Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// List of paths to skip
-		skipPaths := []string{"/login", "/verify"}
-		// Get the request path
+		skipConditions := []struct {
+			Method string
+			Path   string
+		}{
+			{Method: "POST", Path: "/login"},
+			{Method: "POST", Path: "/customer"},
+			{Method: "GET", Path: "/verify"},
+		}
+
+		// Check if the current request should be skipped
 		reqPath := c.Path()
-		// Check if the request path should be skipped
-		for _, path := range skipPaths {
-			if strings.HasPrefix(reqPath, path) {
+		reqMethod := c.Request().Method
+		for _, condition := range skipConditions {
+			if reqMethod == condition.Method && strings.HasPrefix(reqPath, condition.Path) {
 				return next(c) // Skip the middleware
 			}
 		}

@@ -5,10 +5,13 @@ import (
 	_ "github.com/labstack/echo/v4"
 	"os"
 	"sync"
+	"tesodev-korpes/ConsumerService/clientCon"
+	consumerCmd "tesodev-korpes/ConsumerService/cmd"
 	"tesodev-korpes/CustomerService/cmd"
 	"tesodev-korpes/OrderService/client"
 	orderCmd "tesodev-korpes/OrderService/cmd"
 	"tesodev-korpes/pkg"
+	"tesodev-korpes/pkg/Kafka/producer"
 	"tesodev-korpes/pkg/middlewares"
 	"tesodev-korpes/shared/config"
 )
@@ -50,7 +53,14 @@ func main() {
 	e.Use(stats.Process)
 	e.Use(middlewares.ScopedServiceMiddleware)*/
 
+	brokers := []string{"localhost:9092"}
+	topic := "order-topic"
+
+	// Producer nesnesini oluşturuyoruz
+	prod := producer.NewProducer(brokers, topic)
+
 	h_client := client.NewCustomerClient(pkg.NewRestClient())
+	clientCo := clientCon.NewConsumerClient(pkg.NewRestClient())
 
 	if len(os.Args) < 2 {
 		panic("Please provide a service to start: customer, order, or both")
@@ -62,12 +72,15 @@ func main() {
 	case "customer":
 		cmd.BootCustomerService(client1, e)
 	case "order":
-		orderCmd.BootOrderService(client1, h_client, e)
+		orderCmd.BootOrderService(client1, h_client, prod, e)
+	case "consumer":
+		consumerCmd.BootConsumerService(client1, clientCo, e)
 	case "both":
 		cmd.BootCustomerService(client1, e)
-		//  allowing both cmd.BootCustomerService(client, e)
-		// and BootOrderService(client, e) functions to run simultaneously in the 'both' case
-		go orderCmd.BootOrderService(client1, h_client, e)
+		//  allowing both cmd.BootCustomerService(clientCon, e)
+		// and BootOrderService(clientCon, e) functions to run simultaneously in the 'both' case
+		go orderCmd.BootOrderService(client1, h_client, prod, e)
+		go consumerCmd.BootConsumerService(client1, clientCo, e)
 	default:
 		panic("Invalid input. Use 'customer', 'order', or 'both'.")
 	}
@@ -85,6 +98,6 @@ func main() {
 //PS : do not forget to create and call a different column for order service and do not forget to boot order service
 //from another port different than customer service---> .. OrderService config.go
 
-//orderCol, err := pkg.GetMongoCollection(client, "tesodev", "order")
+//orderCol, err := pkg.GetMongoCollection(clientCon, "tesodev", "order")
 //if err != nil {
 //	panic(err)

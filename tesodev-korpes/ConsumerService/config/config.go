@@ -43,3 +43,11 @@ var cfgs = map[string]ConsumerConfig{
 		},
 	},
 }
+
+func GetConsumerConfig(env string) *ConsumerConfig {
+	config, isExist := cfgs[env]
+	if !isExist {
+		panic("config does not exist")
+	}
+	return &config
+}

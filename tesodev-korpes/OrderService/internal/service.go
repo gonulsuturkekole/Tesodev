@@ -5,23 +5,25 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/labstack/gommon/log"
-	"github.com/segmentio/kafka-go"
 	"tesodev-korpes/OrderService/client"
 	_ "tesodev-korpes/OrderService/client"
 	"tesodev-korpes/OrderService/internal/types"
 	_ "tesodev-korpes/pkg"
+	"tesodev-korpes/pkg/Kafka/producer"
 	"time"
 )
 
 type Service struct {
 	repo      *Repository
 	cusClient *client.CustomerClient
+	producer  *producer.Producer
 }
 
-func NewService(repo *Repository, cusClient *client.CustomerClient) *Service {
+func NewService(repo *Repository, cusClient *client.CustomerClient, producer *producer.Producer) *Service {
 	return &Service{
 		repo:      repo,
 		cusClient: cusClient,
+		producer:  producer,
 	}
 }
 
@@ -54,6 +56,8 @@ func (s *Service) CreateOrderService(ctx context.Context, customerID string, ord
 		CustomerResponse: *customer,
 		OrderTotal:       orderReq.OrderTotal,
 		PaymentMethod:    orderReq.PaymentMethod,
+		Price:            orderReq.Price,
+		OrderName:        orderReq.OrderName,
 		CreatedAt:        now,
 		UpdatedAt:        now,
 	}
@@ -62,9 +66,16 @@ func (s *Service) CreateOrderService(ctx context.Context, customerID string, ord
 	if err != nil {
 		return "", err
 	}
-	err = s.produceToKafka(order.Id)
+	err = s.producer.ProduceMessage(order.Id)
 	if err != nil {
 		log.Printf("Failed to produce orderID to Kafka: %v", err)
+	}
+
+	err = s.cusClient.SendFinanceRequest(token)
+	if err != nil {
+		log.Printf("Failed to send finance request: %v", err)
+		// Handle error as needed, perhaps returning a warning or proceeding
+		return "", err
 	}
 	return order.Id, nil
 }
@@ -85,24 +96,4 @@ func (s *Service) Update(ctx context.Context, id string, orderUpdateModel types.
 
 func (s *Service) Delete(ctx context.Context, id string) error {
 	return s.repo.Delete(ctx, id)
-}
-
-func (s *Service) produceToKafka(orderID string) error {
-	writer := kafka.Writer{
-		Addr:     kafka.TCP("localhost:9092"),
-		Topic:    "order-topic",
-		Balancer: &kafka.LeastBytes{},
-	}
-
-	err := writer.WriteMessages(context.Background(), kafka.Message{
-		Key:   []byte("OrderID"),
-		Value: []byte(orderID),
-	})
-
-	if err != nil {
-		return fmt.Errorf("failed to write message to Kafka: %w", err)
-	}
-
-	fmt.Printf("OrderID produced to Kafka: %s\n", orderID)
-	return writer.Close()
 }

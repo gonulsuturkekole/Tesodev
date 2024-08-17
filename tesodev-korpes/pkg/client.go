@@ -33,13 +33,52 @@ func (c *RestClient) DoGetRequest(URI string, respModel any, token string) error
 	return nil
 }
 
-// ProcessClientResponseData processes the response from the client and decodes it into respModel
+func (c *RestClient) DoPostRequest(URI string, body any, respModel any, token string) error {
+	req := fasthttp.AcquireRequest()
+	defer fasthttp.ReleaseRequest(req)
+	req.SetRequestURI(URI)
+	req.Header.Set("Authentication", token)
+	req.Header.SetMethod(fasthttp.MethodPost)
+	req.Header.SetContentType("application/json")
+
+	// Encode the body to JSON and set it in the request
+	if body != nil {
+		bodyBytes, err := json.Marshal(body)
+		if err != nil {
+			return fmt.Errorf("failed to marshal request body: %w", err)
+		}
+		req.SetBody(bodyBytes)
+	}
+
+	resp := fasthttp.AcquireResponse()
+	defer fasthttp.ReleaseResponse(resp)
+
+	// Eğer respModel nil ise, sadece isteği gönder ve yanıtı çözümleme
+	if respModel == nil {
+		if err := c.Client.Do(req, resp); err != nil {
+			return fmt.Errorf("failed to perform request: %w", err)
+		}
+		if resp.StatusCode() != fasthttp.StatusOK {
+			return fmt.Errorf("expected status code 200 but got %d", resp.StatusCode())
+		}
+		return nil
+	}
+
+	// Aksi takdirde, yanıtı çözümlemek için ProcessClientResponseData kullan
+	err := c.ProcessClientResponseData(req, resp, respModel)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// ProcessClientResponseData processes the response from the clientCon and decodes it into respModel
 func (c *RestClient) ProcessClientResponseData(req *fasthttp.Request, resp *fasthttp.Response, respModel any) error {
 	if err := c.Client.Do(req, resp); err != nil {
 		return fmt.Errorf("failed to perform request: %w", err)
 	}
 	if resp.StatusCode() != fasthttp.StatusOK {
-		return fmt.Errorf("Customer not found, expected status code 200 but got %d", resp.StatusCode())
+		return fmt.Errorf("not found, expected status code 200 but got %d", resp.StatusCode())
 	}
 	contentType := resp.Header.Peek("Content-Type")
 	if bytes.Index(contentType, []byte("application/json")) != 0 {
