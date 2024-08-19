@@ -14,8 +14,11 @@ func BootCustomerService(client *mongo.Client, e *echo.Echo) {
 	if err != nil {
 		panic(err)
 	}
-
-	repo := internal.NewRepository(customerCol)
+	addressCol, err := pkg.GetMongoCollection(client, config.DbConfig.DBName, "customeraddresses")
+	if err != nil {
+		panic(err)
+	}
+	repo := internal.NewRepository(customerCol, addressCol)
 	service := internal.NewService(repo)
 	internal.NewHandler(e, service)
 

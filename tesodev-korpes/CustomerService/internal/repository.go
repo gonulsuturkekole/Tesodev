@@ -14,11 +14,13 @@ import (
 
 type Repository struct {
 	collection *mongo.Collection
+	address    *mongo.Collection
 }
 
-func NewRepository(col *mongo.Collection) *Repository {
+func NewRepository(col, addressCol *mongo.Collection) *Repository {
 	return &Repository{
 		collection: col,
+		address:    addressCol,
 	}
 }
 
@@ -175,6 +177,6 @@ func (r *Repository) ExistsByID(ctx context.Context, id string) (bool, error) {
 }
 
 func (r *Repository) CreateAddress(ctx context.Context, address types.Address) (*mongo.InsertOneResult, error) {
-	res, err := r.collection.InsertOne(ctx, address)
+	res, err := r.address.InsertOne(ctx, address)
 	return res, err
 }
