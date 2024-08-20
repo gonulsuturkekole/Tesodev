@@ -13,10 +13,14 @@ type Consumer struct {
 	Topic  string
 }
 
-func (c *Consumer) CreateConnection() {
+func (c *Consumer) CreateConnection(brokers []string) {
+	c.dialer = &kafka.Dialer{
+		Timeout:   10 * time.Second,
+		DualStack: true,
+	}
 
 	c.reader = kafka.NewReader(kafka.ReaderConfig{
-		Brokers:   []string{"localhost:9092"},
+		Brokers:   brokers,
 		Topic:     c.Topic,
 		Partition: 0,
 		MinBytes:  10e3, // 10KB
@@ -25,25 +29,24 @@ func (c *Consumer) CreateConnection() {
 		Dialer:    c.dialer,
 	})
 
-	c.reader.SetOffset(-1)
-
+	c.reader.SetOffset(kafka.LastOffset)
 }
 
 func (c *Consumer) Read(callback func(string, error)) {
+	for {
+		// Read messages indefinitely
+		message, err := c.reader.ReadMessage(context.Background())
+		if err != nil {
+			log.Errorf("Error reading message: %v", err)
+			continue
+		}
 
-	// 10 saniyelik bir timeout süresi belirliyoruz
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
-	defer cancel()
-
-	message, err := c.reader.ReadMessage(ctx)
-	if err != nil {
-		// Hata durumunda loglama ve döngüye devam etme
-		log.Errorf("Error reading message: %v", err)
-		return
+		// Process the message value as a string (assuming it is a UUID)
+		uuid := string(message.Value)
+		callback(uuid, nil)
 	}
-	// Mesajın UUID olduğunu varsayarak direkt string olarak ele alıyoruz
-	uuid := string(message.Value)
+}
 
-	callback(uuid, nil)
-
+func (c *Consumer) Close() error {
+	return c.reader.Close()
 }

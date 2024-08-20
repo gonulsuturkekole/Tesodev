@@ -1,5 +1,11 @@
 package internal
 
+/*
+import (
+	"github.com/labstack/echo/v4"
+	"net/http"
+)
+
 import (
 	"github.com/labstack/echo/v4"
 	_ "go.mongodb.org/mongo-driver/mongo"
@@ -30,7 +36,7 @@ func NewHandler(e *echo.Echo, service *Service) {
 		orderResponse := ToOrderResponse(order)
 		return c.JSON(http.StatusOK, orderResponse)
 	}
-*/
+
 func (h *Handler) Connect(c echo.Context) error {
 	// Header'dan token'ı al
 	token := c.Request().Header.Get("Authentication")

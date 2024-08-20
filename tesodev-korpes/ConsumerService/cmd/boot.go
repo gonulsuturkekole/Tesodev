@@ -1,5 +1,13 @@
 package cmd
 
+/*
+import (
+	"github.com/labstack/echo/v4"
+	"go.mongodb.org/mongo-driver/mongo"
+	"tesodev-korpes/pkg"
+)
+
+
 import (
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -23,3 +31,4 @@ func BootConsumerService(client *mongo.Client, clientCon *clientCon.ConsumerClie
 	internal.NewHandler(e, service)
 	e.Logger.Fatal(e.Start(config.Port))
 }
+*/

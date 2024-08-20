@@ -9,21 +9,18 @@ import (
 	_ "tesodev-korpes/OrderService/client"
 	"tesodev-korpes/OrderService/internal/types"
 	_ "tesodev-korpes/pkg"
-	"tesodev-korpes/pkg/Kafka/producer"
 	"time"
 )
 
 type Service struct {
 	repo      *Repository
 	cusClient *client.CustomerClient
-	producer  *producer.Producer
 }
 
-func NewService(repo *Repository, cusClient *client.CustomerClient, producer *producer.Producer) *Service {
+func NewService(repo *Repository, cusClient *client.CustomerClient) *Service {
 	return &Service{
 		repo:      repo,
 		cusClient: cusClient,
-		producer:  producer,
 	}
 }
 
@@ -66,12 +63,12 @@ func (s *Service) CreateOrderService(ctx context.Context, customerID string, ord
 	if err != nil {
 		return "", err
 	}
-	err = s.producer.ProduceMessage(order.Id)
+	//err = s.producer.ProduceMessage(order.Id)
 	if err != nil {
 		log.Printf("Failed to produce orderID to Kafka: %v", err)
 	}
 
-	err = s.cusClient.SendFinanceRequest(token)
+	//err = s.cusClient.SendFinanceRequest(token)
 	if err != nil {
 		log.Printf("Failed to send finance request: %v", err)
 		// Handle error as needed, perhaps returning a warning or proceeding

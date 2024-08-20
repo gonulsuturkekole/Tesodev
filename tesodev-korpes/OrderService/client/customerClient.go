@@ -29,7 +29,7 @@ func (c *CustomerClient) GetCustomerByID(customerID string, token string) (*type
 	return &res, nil
 }
 
-func (c *CustomerClient) SendFinanceRequest(tokenString string) error {
+/*func (c *CustomerClient) SendFinanceRequest(tokenString string) error {
 	// Define the URL to which the POST request will be sent
 	postUrl := "http://localhost:8003/finance"
 
@@ -42,3 +42,4 @@ func (c *CustomerClient) SendFinanceRequest(tokenString string) error {
 	// No response needed, just return nil on success
 	return nil
 }
+*/

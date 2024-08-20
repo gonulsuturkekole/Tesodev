@@ -7,10 +7,9 @@ import (
 	config3 "tesodev-korpes/OrderService/config"
 	"tesodev-korpes/OrderService/internal"
 	"tesodev-korpes/pkg"
-	"tesodev-korpes/pkg/Kafka/producer"
 )
 
-func BootOrderService(client *mongo.Client, h_client *client.CustomerClient, prod *producer.Producer, e *echo.Echo) {
+func BootOrderService(client *mongo.Client, h_client *client.CustomerClient, e *echo.Echo) {
 	config := config3.GetOrderConfig("dev")
 	orderCol, err := pkg.GetMongoCollection(client, config.DbConfig.DBName, config.DbConfig.ColName)
 	if err != nil {
@@ -18,7 +17,7 @@ func BootOrderService(client *mongo.Client, h_client *client.CustomerClient, pro
 	}
 
 	repo := internal.NewRepository(orderCol)
-	service := internal.NewService(repo, h_client, prod)
+	service := internal.NewService(repo, h_client)
 	internal.NewHandler(e, service)
 
 	e.Logger.Fatal(e.Start(config.Port))

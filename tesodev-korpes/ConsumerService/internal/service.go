@@ -1,6 +1,6 @@
 package internal
 
-import (
+/*import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/labstack/gommon/log"
@@ -94,3 +94,4 @@ func (s *Service) ConsumeTopic(ctx context.Context, token string) error {
 
 	return nil
 }
+*/
