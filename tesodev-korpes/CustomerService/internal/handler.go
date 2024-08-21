@@ -36,6 +36,9 @@ func NewHandler(e *echo.Echo, service *Service) {
 
 	e.GET("/verify", handler.Verify)                  //error verdi
 	e.GET("/customers", handler.GetCustomersByFilter) // Get endpoint for filter
+
+	e.POST("/customers/:customerId/addresses", handler.CreateAddress)
+
 }
 func (h *Handler) Login(c echo.Context) error {
 	var user types.Customer
@@ -205,5 +208,28 @@ func (h *Handler) GetCustomersByFilter(c echo.Context) error {
 		"message":     "customer fetch",
 		"data":        customers,
 		"total_count": totalCount,
+	})
+}
+
+func (h *Handler) CreateAddress(c echo.Context) error {
+	var addressRequest types.Address
+
+	if err := c.Bind(&addressRequest); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	customerID := c.Param("customerId")
+	if customerID == "" {
+		return c.JSON(http.StatusBadRequest, "customerId is required")
+	}
+
+	id, err := h.service.CreateAddress(c.Request().Context(), customerID, addressRequest)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusCreated, map[string]interface{}{
+		"message":   "Address created successfully!",
+		"createdId": id,
 	})
 }

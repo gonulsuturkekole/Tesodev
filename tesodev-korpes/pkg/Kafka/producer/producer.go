@@ -62,24 +62,28 @@ func (p *Producer) CreateTopic() error {
 	return nil
 }
 
-// ProduceMessage creates the topic if it doesn't exist and produces a message to Kafka.
-func (p *Producer) ProduceMessage(orderID string) error {
-	// Önce topic'i yarat veya varsa atla
+// ProduceMessage produces a message to Kafka.
+func (p *Producer) ProduceMessage(OrderID string) error {
+	// Ensure the topic exists before producing a message
 	err := p.CreateTopic()
 	if err != nil {
 		return fmt.Errorf("failed to create topic before producing message: %w", err)
 	}
 
-	// Kafka'ya mesaj gönder
 	err = p.writer.WriteMessages(context.Background(), kafka.Message{
 		Key:   []byte("OrderID"),
-		Value: []byte(orderID),
+		Value: []byte(OrderID),
 	})
 
 	if err != nil {
 		return fmt.Errorf("failed to write message to Kafka: %w", err)
 	}
 
-	fmt.Printf("OrderID produced to Kafka: %s\n", orderID)
+	fmt.Printf(" produced to Kafka: %s\n", OrderID)
 	return nil
+}
+
+// Close closes the producer's writer.
+func (p *Producer) Close() error {
+	return p.writer.Close()
 }

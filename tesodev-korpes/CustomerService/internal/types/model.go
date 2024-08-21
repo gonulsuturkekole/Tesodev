@@ -11,7 +11,6 @@ type Customer struct {
 	Age            int               `bson:"age" json:"age"`
 	Email          string            `bson:"email" json:"email"`
 	Phone          string            `bson:"phone" json:"phone"`
-	Address        string            `bson:"address" json:"address"`
 	City           string            `bson:"city" json:"city"`
 	State          string            `bson:"state" json:"state"`
 	ZipCode        string            `bson:"zip_code" json:"zip_code"`
@@ -23,4 +22,5 @@ type Customer struct {
 	CreatedAt      time.Time         `bson:"created_at" json:"created_at"`
 	UpdatedAt      time.Time         `bson:"updated_at" json:"updated_at"`
 	Token          string            `bson:"token" json:"token"`
+	Addresses      []Address         `bson:"addresses" json:"addresses"`
 }
