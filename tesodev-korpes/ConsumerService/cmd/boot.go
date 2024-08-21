@@ -11,7 +11,7 @@ import (
 	"tesodev-korpes/pkg/Kafka/consumer"
 )
 
-func BootConsumerService(client *mongo.Client, c *echo.Context, kafkaConsumer *consumer.Consumer, conClient *clientCon.ConsumerClient, e *echo.Echo, brokers []string, topic string) {
+func BootConsumerService(client *mongo.Client, kafkaConsumer *consumer.Consumer, conClient *clientCon.ConsumerClient, e *echo.Echo, brokers []string, topic string) {
 
 	config := config4.GetConsumerConfig("dev")
 	consumerCol, err := pkg.GetMongoCollection(client, config.DbConfig.DBName, config.DbConfig.ColName)
@@ -29,7 +29,7 @@ func BootConsumerService(client *mongo.Client, c *echo.Context, kafkaConsumer *c
 		}
 		fmt.Printf("Consumed message: %s\n", msg)
 
-		err = service.ProcessMessage(c, msg)
+		err = service.ProcessMessage(msg)
 		if err != nil {
 			fmt.Printf("Error processing message: %v\n", err)
 		}

@@ -29,7 +29,7 @@ func (c *Consumer) CreateConnection(brokers []string) {
 		Dialer:    c.dialer,
 	})
 
-	c.reader.SetOffset(kafka.FirstOffset)
+	c.reader.SetOffset(kafka.LastOffset)
 }
 
 func (c *Consumer) Read(callback func(string, error)) {

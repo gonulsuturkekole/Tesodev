@@ -2,8 +2,8 @@ package internal
 
 import (
 	"fmt"
-	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
+	"net/http"
 	"tesodev-korpes/ConsumerService/clientCon"
 	"tesodev-korpes/pkg/Kafka/consumer"
 )
@@ -26,9 +26,9 @@ func NewService(repo *Repository, conClient *clientCon.ConsumerClient, kafkaCons
 	}
 }
 
-func (s *Service) ProcessMessage(c *echo.Context, msg string) error {
+func (s *Service) ProcessMessage(msg string) error {
 	// Mesajı işleyin ve Order Service'e istek gönderin
-	err := s.sendRequest(c, msg)
+	err := s.sendRequest(msg)
 	if err != nil {
 		fmt.Printf("Error sending order request: %v\n", err)
 		return err
@@ -36,9 +36,10 @@ func (s *Service) ProcessMessage(c *echo.Context, msg string) error {
 	return nil
 }
 
-func (s *Service) sendRequest(c *echo.Context, msg string) error {
+func (s *Service) sendRequest(msg string) error {
 
-	token := c.Request().Header.Get("Authentication")
+	req := http.Header{}
+	token := req.Get("Authentication")
 	order, err := s.conClient.GetOrderByID(msg, token)
 	if err != nil {
 		log.Errorf("Error getting order by ID: %v", err)
