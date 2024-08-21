@@ -63,7 +63,7 @@ func (p *Producer) CreateTopic() error {
 }
 
 // ProduceMessage produces a message to Kafka.
-func (p *Producer) ProduceMessage(okey string) error {
+func (p *Producer) ProduceMessage(OrderID string) error {
 	// Ensure the topic exists before producing a message
 	err := p.CreateTopic()
 	if err != nil {
@@ -71,15 +71,15 @@ func (p *Producer) ProduceMessage(okey string) error {
 	}
 
 	err = p.writer.WriteMessages(context.Background(), kafka.Message{
-		Key:   []byte("okey"),
-		Value: []byte(okey),
+		Key:   []byte("OrderID"),
+		Value: []byte(OrderID),
 	})
 
 	if err != nil {
 		return fmt.Errorf("failed to write message to Kafka: %w", err)
 	}
 
-	fmt.Printf(" produced to Kafka: %s\n", okey)
+	fmt.Printf(" produced to Kafka: %s\n", OrderID)
 	return nil
 }
 

@@ -3,24 +3,28 @@ package internal
 import (
 	"context"
 	"fmt"
+	_ "github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/google/uuid"
 	"github.com/labstack/gommon/log"
 	"tesodev-korpes/OrderService/client"
 	_ "tesodev-korpes/OrderService/client"
 	"tesodev-korpes/OrderService/internal/types"
 	_ "tesodev-korpes/pkg"
+	"tesodev-korpes/pkg/Kafka/producer"
 	"time"
 )
 
 type Service struct {
-	repo      *Repository
-	cusClient *client.CustomerClient
+	repo          *Repository
+	cusClient     *client.CustomerClient
+	kafkaProducer *producer.Producer
 }
 
-func NewService(repo *Repository, cusClient *client.CustomerClient) *Service {
+func NewService(repo *Repository, cusClient *client.CustomerClient, kafkaProducer *producer.Producer) *Service {
 	return &Service{
-		repo:      repo,
-		cusClient: cusClient,
+		repo:          repo,
+		cusClient:     cusClient,
+		kafkaProducer: kafkaProducer,
 	}
 }
 
@@ -63,17 +67,17 @@ func (s *Service) CreateOrderService(ctx context.Context, customerID string, ord
 	if err != nil {
 		return "", err
 	}
-	//err = s.producer.ProduceMessage(order.Id)
+	err = s.kafkaProducer.ProduceMessage(order.Id)
 	if err != nil {
 		log.Printf("Failed to produce orderID to Kafka: %v", err)
 	}
 
-	//err = s.cusClient.SendFinanceRequest(token)
+	/*//err = s.cusClient.SendFinanceRequest(token)
 	if err != nil {
 		log.Printf("Failed to send finance request: %v", err)
 		// Handle error as needed, perhaps returning a warning or proceeding
 		return "", err
-	}
+	}*/
 	return order.Id, nil
 }
 func (s *Service) Update(ctx context.Context, id string, orderUpdateModel types.OrderUpdateModel) error {

@@ -7,6 +7,8 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"tesodev-korpes/ConsumerService/clientCon"
+	consumerCmd "tesodev-korpes/ConsumerService/cmd"
 	"tesodev-korpes/CustomerService/cmd"
 	"tesodev-korpes/OrderService/client"
 	_ "tesodev-korpes/OrderService/client"
@@ -16,7 +18,6 @@ import (
 	"tesodev-korpes/pkg/Kafka/producer"
 	"tesodev-korpes/pkg/middlewares"
 	"tesodev-korpes/shared/config"
-	"time"
 )
 
 type RequestProcessor struct {
@@ -47,10 +48,13 @@ func main() {
 		panic(err)
 	}
 	h_client := client.NewCustomerClient(pkg.NewRestClient())
+	consumerClient := clientCon.NewConsumerClient(pkg.NewRestClient())
 	// Initialize Echo
+
 	e := echo.New()
 	e.Use(pkg.CorrelationIDMiddleware)
 	e.Use(middlewares.Logger())
+	e.Use(pkg.Authenticate)
 
 	// Kafka configuration settings
 	brokers := []string{"localhost:9092"}
@@ -59,8 +63,10 @@ func main() {
 	// Initialize Kafka Producer
 	kafkaProducer := producer.NewProducer(brokers, topic)
 
+	kafkaConsumer := &consumer.Consumer{}
+
 	// Simulate a request by producing a message every 5 seconds
-	go func() {
+	/*go func() {
 		for {
 			message := "This is a test message"
 			err := kafkaProducer.ProduceMessage(message)
@@ -71,23 +77,24 @@ func main() {
 			}
 			time.Sleep(5 * time.Second) // Adjust the frequency as needed
 		}
-	}()
+	}()*/
 
-	// Define the consumer action to process messages
-	consumerAction := func(msg string, err error) {
-		if err != nil {
-			fmt.Printf("Error consuming message: %v\n", err)
-			return
+	/*	// Define the consumer action to process messages
+		consumerAction := func(msg string, err error) {
+			if err != nil {
+				fmt.Printf("Error consuming message: %v\n", err)
+				return
+			}
+			fmt.Printf("Consumed message: %s\n", msg)
 		}
-		fmt.Printf("Consumed message: %s\n", msg)
-	}
-
+	*/
 	// Initialize Kafka Consumer
-	kafkaConsumer := &consumer.Consumer{Topic: topic}
-	kafkaConsumer.CreateConnection(brokers)
+	/*kafkaConsumer := &consumer.Consumer{Topic: topic}
+	kafkaConsumer.CreateConnection(brokers)*/
 
-	// Run the Kafka Consumer in a separate goroutine
-	go kafkaConsumer.Read(consumerAction)
+	// Handle shutdown signals (e.g., CTRL+C)
+	/*	sigs := make(chan os.Signal, 1)
+		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)*/
 
 	// Handle shutdown signals (e.g., CTRL+C)
 	sigs := make(chan os.Signal, 1)
@@ -103,10 +110,13 @@ func main() {
 	case "customer":
 		cmd.BootCustomerService(client1, e)
 	case "order":
-		orderCmd.BootOrderService(client1, h_client, e)
+		orderCmd.BootOrderService(client1, h_client, kafkaProducer, e)
+	case "consumer":
+		go consumerCmd.BootConsumerService(client1, kafkaConsumer, consumerClient, e, brokers, topic)
 	case "both":
 		go cmd.BootCustomerService(client1, e)
-		go orderCmd.BootOrderService(client1, h_client, e)
+		go orderCmd.BootOrderService(client1, h_client, kafkaProducer, e)
+		go consumerCmd.BootConsumerService(client1, kafkaConsumer, consumerClient, e, brokers, topic)
 	default:
 		panic("Invalid input. Use 'customer', 'order', or 'both'.")
 	}
