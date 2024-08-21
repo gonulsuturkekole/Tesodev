@@ -29,6 +29,8 @@ func (c *Consumer) CreateConnection() {
 
 }
 
+//config := &kafka.ConfigMap{ "bootstrap.servers": "localhost:9092", "group.id":  "my-group", "auto.offset.reset": "earliest", "enable.auto.commit": true, // Enable auto commit }
+
 func (c *Consumer) Read(callback func(string, error)) {
 
 	// 10 saniyelik bir timeout süresi belirliyoruz
