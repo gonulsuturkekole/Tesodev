@@ -1,6 +1,8 @@
 package types
 
-import "time"
+import (
+	"time"
+)
 
 type OrderResponseModel struct {
 	CustomerId     string    `bson:"customer_id" json:"customer_id"`

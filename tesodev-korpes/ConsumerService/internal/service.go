@@ -1,10 +1,12 @@
 package internal
 
 import (
+	"context"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/labstack/gommon/log"
-	"net/http"
 	"tesodev-korpes/ConsumerService/clientCon"
+	"tesodev-korpes/ConsumerService/internal/types"
 	"tesodev-korpes/pkg/Kafka/consumer"
 )
 
@@ -26,9 +28,9 @@ func NewService(repo *Repository, conClient *clientCon.ConsumerClient, kafkaCons
 	}
 }
 
-func (s *Service) ProcessMessage(msg string) error {
+func (s *Service) ProcessMessage(ctx context.Context, msg string) error {
 	// Mesajı işleyin ve Order Service'e istek gönderin
-	err := s.sendRequest(msg)
+	err := s.sendRequest(ctx, msg)
 	if err != nil {
 		fmt.Printf("Error sending order request: %v\n", err)
 		return err
@@ -36,10 +38,9 @@ func (s *Service) ProcessMessage(msg string) error {
 	return nil
 }
 
-func (s *Service) sendRequest(msg string) error {
+func (s *Service) sendRequest(ctx context.Context, msg string) error {
 
-	req := http.Header{}
-	token := req.Get("Authentication")
+	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZiNmEzNWUxLTgyNjYtNDViMi05YTc2LTMxOGE3YTVjMzE0NiIsImZpcnN0X25hbWUiOiJBeXNlIiwibGFzdF9uYW1lIjoiQ2FuIiwiZXhwIjoxNzI0Mzk5NDUwfQ.EkjZOCooaTbGnuY6zVbuJf9mBxc1VjBAg_MKG5Xr2Mo"
 	order, err := s.conClient.GetOrderByID(msg, token)
 	if err != nil {
 		log.Errorf("Error getting order by ID: %v", err)
@@ -63,9 +64,10 @@ func (s *Service) sendRequest(msg string) error {
 	}
 	log.Infof("Customer Info: %+v", customer)
 
-	/*priceWithVat := s.CalculateVat(order.Price)
+	priceWithVat := CalculateVat(order.Price)
 	log.Infof("Price with VAT: %.2f", priceWithVat)
 
+	// KDV dahil fiyatı güncelle
 	order.Price = priceWithVat
 
 	// Consumer tipinde bir nesne oluşturun
@@ -79,9 +81,21 @@ func (s *Service) sendRequest(msg string) error {
 	_, err = s.repo.Create(ctx, consum)
 	if err != nil {
 		log.Errorf("Error saving consumer to repository: %v", err)
-		return
+		return nil
 	}
 
-	log.Infof("Consumer saved successfully: %+v", consum)*/
+	log.Infof("Consumer saved successfully: %+v", consum)
 	return nil
+}
+func CalculateVat(price float64) float64 {
+	// KDV oranı
+	vatRate := 0.18
+
+	// Fiyat ve KDV oranını çarparak KDV miktarını bulun
+	vatAmount := price * vatRate
+
+	// KDV'yi orijinal fiyata ekleyerek toplam fiyatı bulun
+	totalPrice := price + vatAmount
+
+	return totalPrice
 }

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -22,6 +23,7 @@ func BootConsumerService(client *mongo.Client, kafkaConsumer *consumer.Consumer,
 	repo := internal.NewRepository(consumerCol)
 	service := internal.NewService(repo, conClient, kafkaConsumer, brokers, topic)
 
+	ctx := context.Background()
 	consumerAction := func(msg string, err error) {
 		if err != nil {
 			fmt.Printf("Error consuming message: %v\n", err)
@@ -29,7 +31,7 @@ func BootConsumerService(client *mongo.Client, kafkaConsumer *consumer.Consumer,
 		}
 		fmt.Printf("Consumed message: %s\n", msg)
 
-		err = service.ProcessMessage(msg)
+		err = service.ProcessMessage(ctx, msg)
 		if err != nil {
 			fmt.Printf("Error processing message: %v\n", err)
 		}
