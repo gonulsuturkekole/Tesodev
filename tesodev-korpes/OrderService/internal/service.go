@@ -57,7 +57,7 @@ func (s *Service) CreateOrderService(ctx context.Context, customerID string, ord
 		CustomerResponse: *customer,
 		OrderTotal:       orderReq.OrderTotal,
 		PaymentMethod:    orderReq.PaymentMethod,
-		Price:            orderReq.Price,
+		PriceCent:        orderReq.PriceCent,
 		OrderName:        orderReq.OrderName,
 		CreatedAt:        now,
 		UpdatedAt:        now,

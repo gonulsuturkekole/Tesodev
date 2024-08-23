@@ -10,6 +10,14 @@ import (
 	"tesodev-korpes/CustomerService/authentication"
 )
 
+var secretKey string
+
+func init() {
+
+	dbConf := config.GetConsumerConfig("dev")
+	secretKey = dbConf.DbConfig.SecretKey
+}
+
 func CorrelationIDMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// Checking X-Correlation-Id header
@@ -38,9 +46,6 @@ func Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 			{Method: "POST", Path: "/customer"},
 			{Method: "GET", Path: "/verify"},
 		}
-
-		config := config.GetConsumerConfig("dev")
-		secretKey := config.DbConfig.SecretKey
 
 		// Check if the current request should be skipped
 		reqPath := c.Path()

@@ -62,10 +62,10 @@ func (s *Service) aggregateCustomerOrder(ctx context.Context, msg string, key st
 	}
 	log.Infof("Customer Info: %+v", customer)
 
-	priceWithVat := CalculateVat(order.Price)
-	log.Infof("Price with VAT: %.2f", priceWithVat)
+	priceWithVat := CalculateVat(order.PriceCent)
+	log.Infof("Price with VAT: %d", priceWithVat)
 
-	order.Price = priceWithVat
+	order.PriceCent = priceWithVat
 
 	consum := &types.CustomerOrder{
 		Id:       uuid.New().String(),
@@ -82,11 +82,12 @@ func (s *Service) aggregateCustomerOrder(ctx context.Context, msg string, key st
 	log.Infof("CustomerOrder saved successfully: %+v", consum)
 	return nil
 }
-func CalculateVat(price float64) float64 {
+func CalculateVat(price int64) int64 {
 
-	vatRate := 0.18
-	vatAmount := price * vatRate
-	totalPrice := price + vatAmount
+	newprice := price * 100
+	vatRate := int64(20)
+	vatAmount := (newprice * vatRate) / 100
+	totalPrice := newprice + vatAmount
 
 	return totalPrice
 }

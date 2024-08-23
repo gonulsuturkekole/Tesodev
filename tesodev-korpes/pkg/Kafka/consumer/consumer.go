@@ -2,7 +2,6 @@ package consumer
 
 import (
 	"context"
-	"fmt"
 	"github.com/labstack/gommon/log"
 	"github.com/segmentio/kafka-go"
 	"time"
@@ -43,8 +42,6 @@ func (c *Consumer) Read(callback func(string, error)) {
 			log.Errorf("Error reading message: %v", err)
 			continue
 		}
-
-		fmt.Println("message produced: ", string(message.Value))
 		// Process the message value as a string (assuming it is a UUID)
 		uuid := string(message.Value)
 		callback(uuid, nil)

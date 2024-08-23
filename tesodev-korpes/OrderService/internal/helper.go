@@ -11,7 +11,7 @@ func ToOrderResponse(order *types.Order) *types.OrderResponseModel {
 		ShipmentStatus: order.ShipmentStatus,
 		PaymentMethod:  order.PaymentMethod,
 		OrderTotal:     order.OrderTotal,
-		Price:          order.Price,
+		PriceCent:      order.PriceCent,
 		CreatedAt:      order.CreatedAt,
 		UpdatedAt:      order.UpdatedAt,
 	}

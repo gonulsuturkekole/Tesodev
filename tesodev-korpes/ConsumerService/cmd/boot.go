@@ -22,6 +22,7 @@ func BootConsumerService(client *mongo.Client, kafkaConsumer *consumer.Consumer,
 	repo := internal.NewFinanceRepository(consumerCol)
 	service := internal.NewService(repo, conClient, kafkaConsumer, brokers, topic)
 	key := config.DbConfig.SecretKey
+
 	ctx := context.Background()
 	consumerAction := func(msg string, err error) {
 		if err != nil {
