@@ -19,10 +19,9 @@ func BootConsumerService(client *mongo.Client, kafkaConsumer *consumer.Consumer,
 	if err != nil {
 		panic(err)
 	}
-
-	repo := internal.NewRepository(consumerCol)
+	repo := internal.NewFinanceRepository(consumerCol)
 	service := internal.NewService(repo, conClient, kafkaConsumer, brokers, topic)
-
+	key := config.DbConfig.SecretKey
 	ctx := context.Background()
 	consumerAction := func(msg string, err error) {
 		if err != nil {
@@ -31,7 +30,7 @@ func BootConsumerService(client *mongo.Client, kafkaConsumer *consumer.Consumer,
 		}
 		fmt.Printf("Consumed message: %s\n", msg)
 
-		err = service.ProcessMessage(ctx, msg)
+		err = service.ProcessMessage(ctx, msg, key)
 		if err != nil {
 			fmt.Printf("Error processing message: %v\n", err)
 		}

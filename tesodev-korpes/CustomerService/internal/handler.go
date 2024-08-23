@@ -40,6 +40,7 @@ func NewHandler(e *echo.Echo, service *Service) {
 	e.POST("/customers/:customerId/addresses", handler.CreateAddress)
 
 }
+
 func (h *Handler) Login(c echo.Context) error {
 	var user types.Customer
 	if err := c.Bind(&user); err != nil {
@@ -56,6 +57,7 @@ func (h *Handler) Login(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid password"})
 	}
 	result.Token = authentication.JwtGenerator(result.Id, result.FirstName, result.LastName, "secret")
+	//result.FinanceToken = authentication.JwtGenerator(result.Id, result.FirstName, result.LastName, "secret")
 
 	resp := c.JSON(http.StatusOK, result)
 	log.Info("Status Ok")

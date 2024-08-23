@@ -21,7 +21,11 @@ func (c *RestClient) DoGetRequest(URI string, respModel any, token string) error
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 	req.SetRequestURI(URI)
-	req.Header.Set("Authentication", token)
+
+	if !isLoginEndpoint(URI) {
+		req.Header.Set("Authentication", token)
+	}
+
 	req.Header.SetMethod(fasthttp.MethodGet)
 	resp := fasthttp.AcquireResponse()
 	defer fasthttp.ReleaseResponse(resp)
@@ -37,7 +41,11 @@ func (c *RestClient) DoPostRequest(URI string, body any, respModel any, token st
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 	req.SetRequestURI(URI)
-	req.Header.Set("Authentication", token)
+
+	if !isLoginEndpoint(URI) {
+		req.Header.Set("Authentication", token)
+	}
+
 	req.Header.SetMethod(fasthttp.MethodPost)
 	req.Header.SetContentType("application/json")
 
@@ -74,6 +82,7 @@ func (c *RestClient) DoPostRequest(URI string, body any, respModel any, token st
 
 // ProcessClientResponseData processes the response from the clientCon and decodes it into respModel
 func (c *RestClient) ProcessClientResponseData(req *fasthttp.Request, resp *fasthttp.Response, respModel any) error {
+
 	if err := c.Client.Do(req, resp); err != nil {
 		return fmt.Errorf("failed to perform request: %w", err)
 	}
@@ -92,4 +101,9 @@ func (c *RestClient) ProcessClientResponseData(req *fasthttp.Request, resp *fast
 		return fmt.Errorf("failed to decode response body: %w", err)
 	}
 	return nil
+}
+
+func isLoginEndpoint(URI string) bool {
+	// Login endpointi ile eşleşen bir kontrol ekleyin. Örneğin:
+	return URI == "http://localhost:8001/login"
 }

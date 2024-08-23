@@ -1,45 +1,41 @@
 package config
 
+import "fmt"
+
+type DbConfig struct {
+	DBName    string
+	ColName   string
+	SecretKey string
+}
+
 type ConsumerConfig struct {
 	Port     string
-	DbConfig struct {
-		DBName  string
-		ColName string
-	}
+	DbConfig DbConfig
 }
 
 var cfgs = map[string]ConsumerConfig{
 	"prod": {
 		Port: ":8003",
-		// This setup supports the independent operation of each service
-		//whether they run on the same server or different servers
-		// optimizing application performance and management.
-		DbConfig: struct {
-			DBName  string
-			ColName string
-		}{
-			DBName:  "tesodev",
-			ColName: "finance",
+		DbConfig: DbConfig{
+			DBName:    "tesodev",
+			ColName:   "finance",
+			SecretKey: "079c9b74-24a7-4341-ae15-5b7a42f8bfb7",
 		},
 	},
 	"qa": {
 		Port: ":8003",
-		DbConfig: struct {
-			DBName  string
-			ColName string
-		}{
-			DBName:  "tesodev",
-			ColName: "finance",
+		DbConfig: DbConfig{
+			DBName:    "tesodev",
+			ColName:   "finance",
+			SecretKey: "079c9b74-24a7-4341-ae15-5b7a42f8bfb7",
 		},
 	},
 	"dev": {
 		Port: ":8003",
-		DbConfig: struct {
-			DBName  string
-			ColName string
-		}{
-			DBName:  "tesodev",
-			ColName: "finance",
+		DbConfig: DbConfig{
+			DBName:    "tesodev",
+			ColName:   "finance",
+			SecretKey: "079c9b74-24a7-4341-ae15-5b7a42f8bfb7",
 		},
 	},
 }
@@ -47,7 +43,7 @@ var cfgs = map[string]ConsumerConfig{
 func GetConsumerConfig(env string) *ConsumerConfig {
 	config, isExist := cfgs[env]
 	if !isExist {
-		panic("config does not exist")
+		panic(fmt.Sprintf("Config for environment '%s' does not exist", env))
 	}
 	return &config
 }

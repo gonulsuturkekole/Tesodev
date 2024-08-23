@@ -6,6 +6,7 @@ import (
 	_ "github.com/labstack/echo/v4"
 	"net/http"
 	"strings"
+	"tesodev-korpes/ConsumerService/config"
 	"tesodev-korpes/CustomerService/authentication"
 )
 
@@ -38,6 +39,9 @@ func Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 			{Method: "GET", Path: "/verify"},
 		}
 
+		config := config.GetConsumerConfig("dev")
+		secretKey := config.DbConfig.SecretKey
+
 		// Check if the current request should be skipped
 		reqPath := c.Path()
 		reqMethod := c.Request().Method
@@ -49,6 +53,11 @@ func Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 		tokenString := c.Request().Header.Get("Authentication")
 		if tokenString == "" {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": "No Authentication header provided"})
+		}
+
+		if strings.TrimSpace(tokenString) == secretKey {
+			// If the secret key matches, skip verification
+			return next(c)
 		}
 		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 

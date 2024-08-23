@@ -17,6 +17,11 @@ type Claims struct {
 	LastName  string `json:"last_name"`
 	jwt.StandardClaims
 }
+type FinanceClaims struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	jwt.StandardClaims
+}
 
 func JwtGenerator(Id string, firstName string, lastName string, key string) string {
 	//Generate Token JWT for auth

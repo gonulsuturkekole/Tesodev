@@ -11,12 +11,12 @@ import (
 )
 
 type Service struct {
-	repo          *Repository
+	repo          *FinanceRepository
 	kafkaConsumer *consumer.Consumer
 	conClient     *clientCon.ConsumerClient
 }
 
-func NewService(repo *Repository, conClient *clientCon.ConsumerClient, kafkaConsumer *consumer.Consumer, brokers []string, topic string) *Service {
+func NewService(repo *FinanceRepository, conClient *clientCon.ConsumerClient, kafkaConsumer *consumer.Consumer, brokers []string, topic string) *Service {
 
 	kafkaConsumer.Topic = topic
 	kafkaConsumer.CreateConnection(brokers)
@@ -28,9 +28,9 @@ func NewService(repo *Repository, conClient *clientCon.ConsumerClient, kafkaCons
 	}
 }
 
-func (s *Service) ProcessMessage(ctx context.Context, msg string) error {
-	// Mesajı işleyin ve Order Service'e istek gönderin
-	err := s.sendRequest(ctx, msg)
+func (s *Service) ProcessMessage(ctx context.Context, msg string, key string) error {
+
+	err := s.aggregateCustomerOrder(ctx, msg, key)
 	if err != nil {
 		fmt.Printf("Error sending order request: %v\n", err)
 		return err
@@ -38,10 +38,9 @@ func (s *Service) ProcessMessage(ctx context.Context, msg string) error {
 	return nil
 }
 
-func (s *Service) sendRequest(ctx context.Context, msg string) error {
+func (s *Service) aggregateCustomerOrder(ctx context.Context, msg string, key string) error {
 
-	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZiNmEzNWUxLTgyNjYtNDViMi05YTc2LTMxOGE3YTVjMzE0NiIsImZpcnN0X25hbWUiOiJBeXNlIiwibGFzdF9uYW1lIjoiQ2FuIiwiZXhwIjoxNzI0Mzk5NDUwfQ.EkjZOCooaTbGnuY6zVbuJf9mBxc1VjBAg_MKG5Xr2Mo"
-	order, err := s.conClient.GetOrderByID(msg, token)
+	order, err := s.conClient.GetOrderByID(msg, key)
 	if err != nil {
 		log.Errorf("Error getting order by ID: %v", err)
 		return nil
@@ -52,8 +51,7 @@ func (s *Service) sendRequest(ctx context.Context, msg string) error {
 	}
 	log.Infof("Order Info: %+v", order)
 
-	// Müşteri bilgilerini alın
-	customer, err := s.conClient.GetCustomerByID(order.CustomerId, token)
+	customer, err := s.conClient.GetCustomerByID(order.CustomerId, key)
 	if err != nil {
 		log.Errorf("Error getting customer by ID: %v", err)
 		return nil
@@ -67,34 +65,27 @@ func (s *Service) sendRequest(ctx context.Context, msg string) error {
 	priceWithVat := CalculateVat(order.Price)
 	log.Infof("Price with VAT: %.2f", priceWithVat)
 
-	// KDV dahil fiyatı güncelle
 	order.Price = priceWithVat
 
-	// Consumer tipinde bir nesne oluşturun
-	consum := &types.Consumer{
+	consum := &types.CustomerOrder{
 		Id:       uuid.New().String(),
 		Customer: *customer,
 		Order:    *order,
 	}
 
-	// Bu nesneyi veritabanına kaydedin
 	_, err = s.repo.Create(ctx, consum)
 	if err != nil {
 		log.Errorf("Error saving consumer to repository: %v", err)
 		return nil
 	}
 
-	log.Infof("Consumer saved successfully: %+v", consum)
+	log.Infof("CustomerOrder saved successfully: %+v", consum)
 	return nil
 }
 func CalculateVat(price float64) float64 {
-	// KDV oranı
+
 	vatRate := 0.18
-
-	// Fiyat ve KDV oranını çarparak KDV miktarını bulun
 	vatAmount := price * vatRate
-
-	// KDV'yi orijinal fiyata ekleyerek toplam fiyatı bulun
 	totalPrice := price + vatAmount
 
 	return totalPrice

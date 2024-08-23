@@ -38,3 +38,13 @@ func (c *ConsumerClient) GetCustomerByID(customerID string, token string) (*type
 	}
 	return &res, nil
 }
+
+func (c *ConsumerClient) GetToken() (*types.TokenResponseModel, error) {
+	var res types.TokenResponseModel
+	uri := fmt.Sprintf("http://localhost:8001/login")
+	err := c.RestClient.DoGetRequest(uri, &res, "")
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}

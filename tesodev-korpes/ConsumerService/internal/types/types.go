@@ -21,3 +21,7 @@ type CustomerResponseModel struct {
 	Username  string `bson:"username" json:"username"`
 	Password  string `bson:"password" json:"password"`
 }
+
+type TokenResponseModel struct {
+	FinanceToken string `bson:"token" json:"token"`
+}

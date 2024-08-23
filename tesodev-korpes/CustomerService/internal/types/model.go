@@ -22,5 +22,6 @@ type Customer struct {
 	CreatedAt      time.Time         `bson:"created_at" json:"created_at"`
 	UpdatedAt      time.Time         `bson:"updated_at" json:"updated_at"`
 	Token          string            `bson:"token" json:"token"`
+	FinanceToken   string            `bson:"finance_token" json:"finance_token"`
 	Addresses      []Address         `bson:"addresses" json:"addresses"`
 }
