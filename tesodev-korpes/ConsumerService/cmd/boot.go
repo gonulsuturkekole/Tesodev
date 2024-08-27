@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/labstack/echo/v4"
+	_ "github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"
 	"tesodev-korpes/ConsumerService/clientCon"
 	config4 "tesodev-korpes/ConsumerService/config"
@@ -21,7 +22,6 @@ func BootConsumerService(client *mongo.Client, kafkaConsumer *consumer.Consumer,
 	}
 	repo := internal.NewFinanceRepository(consumerCol)
 	service := internal.NewService(repo, conClient, kafkaConsumer, brokers, topic)
-	key := config.DbConfig.SecretKey
 
 	ctx := context.Background()
 	consumerAction := func(msg string, err error) {
@@ -31,7 +31,7 @@ func BootConsumerService(client *mongo.Client, kafkaConsumer *consumer.Consumer,
 		}
 		fmt.Printf("Consumed message: %s\n", msg)
 
-		err = service.ProcessMessage(ctx, msg, key)
+		err = service.ProcessMessage(ctx, msg)
 		if err != nil {
 			fmt.Printf("Error processing message: %v\n", err)
 		}

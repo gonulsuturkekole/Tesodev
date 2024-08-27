@@ -6,9 +6,19 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/gommon/log"
 	"tesodev-korpes/ConsumerService/clientCon"
+	"tesodev-korpes/ConsumerService/config"
 	"tesodev-korpes/ConsumerService/internal/types"
 	"tesodev-korpes/pkg/Kafka/consumer"
+	"time"
 )
+
+var secretKey string
+
+func init() {
+
+	appConf := config.GetAppConfig("dev")
+	secretKey = appConf.SecretKey
+}
 
 type Service struct {
 	repo          *FinanceRepository
@@ -28,9 +38,9 @@ func NewService(repo *FinanceRepository, conClient *clientCon.ConsumerClient, ka
 	}
 }
 
-func (s *Service) ProcessMessage(ctx context.Context, msg string, key string) error {
+func (s *Service) ProcessMessage(ctx context.Context, msg string) error {
 
-	err := s.aggregateCustomerOrder(ctx, msg, key)
+	err := s.aggregateCustomerOrder(ctx, msg)
 	if err != nil {
 		fmt.Printf("Error sending order request: %v\n", err)
 		return err
@@ -38,9 +48,9 @@ func (s *Service) ProcessMessage(ctx context.Context, msg string, key string) er
 	return nil
 }
 
-func (s *Service) aggregateCustomerOrder(ctx context.Context, msg string, key string) error {
+func (s *Service) aggregateCustomerOrder(ctx context.Context, msg string) error {
 
-	order, err := s.conClient.GetOrderByID(msg, key)
+	order, err := s.conClient.GetOrderByID(msg, secretKey)
 	if err != nil {
 		log.Errorf("Error getting order by ID: %v", err)
 		return nil
@@ -51,7 +61,7 @@ func (s *Service) aggregateCustomerOrder(ctx context.Context, msg string, key st
 	}
 	log.Infof("Order Info: %+v", order)
 
-	customer, err := s.conClient.GetCustomerByID(order.CustomerId, key)
+	customer, err := s.conClient.GetCustomerByID(order.CustomerId, secretKey)
 	if err != nil {
 		log.Errorf("Error getting customer by ID: %v", err)
 		return nil
@@ -67,27 +77,35 @@ func (s *Service) aggregateCustomerOrder(ctx context.Context, msg string, key st
 
 	order.PriceCent = priceWithVat
 
-	consum := &types.CustomerOrder{
-		Id:       uuid.New().String(),
-		Customer: *customer,
-		Order:    *order,
+	customerOrder := &types.CustomerOrder{
+		Id:             uuid.New().String(),
+		FirstName:      customer.FirstName,
+		LastName:       customer.LastName,
+		Username:       customer.Username,
+		CustomerId:     order.CustomerId,
+		OrderName:      order.OrderName,
+		ShipmentStatus: order.ShipmentStatus,
+		PaymentMethod:  order.PaymentMethod,
+		OrderTotal:     order.OrderTotal,
+		PriceCent:      order.PriceCent,
+		OrderCreatedAt: time.Now(),
+		OrderUpdatedAt: time.Now(),
+		CreatedAt:      time.Now(),
 	}
 
-	_, err = s.repo.Create(ctx, consum)
+	_, err = s.repo.Create(ctx, customerOrder)
 	if err != nil {
 		log.Errorf("Error saving consumer to repository: %v", err)
 		return nil
 	}
 
-	log.Infof("CustomerOrder saved successfully: %+v", consum)
+	log.Infof("CustomerOrder saved successfully: %+v", customerOrder)
 	return nil
 }
-func CalculateVat(price int64) int64 {
+func CalculateVat(price int) int {
 
-	newprice := price * 100
-	vatRate := int64(20)
-	vatAmount := (newprice * vatRate) / 100
-	totalPrice := newprice + vatAmount
-
+	vatRate := 20
+	vatAmount := (price * vatRate) / 100
+	totalPrice := price + vatAmount
 	return totalPrice
 }

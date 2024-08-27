@@ -14,8 +14,8 @@ var secretKey string
 
 func init() {
 
-	dbConf := config.GetConsumerConfig("dev")
-	secretKey = dbConf.DbConfig.SecretKey
+	appConf := config.GetAppConfig("dev")
+	secretKey = appConf.SecretKey
 }
 
 func CorrelationIDMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
@@ -61,7 +61,6 @@ func Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		if strings.TrimSpace(tokenString) == secretKey {
-			// If the secret key matches, skip verification
 			return next(c)
 		}
 		tokenString = strings.TrimPrefix(tokenString, "Bearer ")

@@ -3,9 +3,8 @@ package config
 import "fmt"
 
 type DbConfig struct {
-	DBName    string
-	ColName   string
-	SecretKey string
+	DBName  string
+	ColName string
 }
 
 type ConsumerConfig struct {
@@ -17,25 +16,22 @@ var cfgs = map[string]ConsumerConfig{
 	"prod": {
 		Port: ":8003",
 		DbConfig: DbConfig{
-			DBName:    "tesodev",
-			ColName:   "finance",
-			SecretKey: "079c9b74-24a7-4341-ae15-5b7a42f8bfb7",
+			DBName:  "tesodev",
+			ColName: "finance",
 		},
 	},
 	"qa": {
 		Port: ":8003",
 		DbConfig: DbConfig{
-			DBName:    "tesodev",
-			ColName:   "finance",
-			SecretKey: "079c9b74-24a7-4341-ae15-5b7a42f8bfb7",
+			DBName:  "tesodev",
+			ColName: "finance",
 		},
 	},
 	"dev": {
 		Port: ":8003",
 		DbConfig: DbConfig{
-			DBName:    "tesodev",
-			ColName:   "finance",
-			SecretKey: "079c9b74-24a7-4341-ae15-5b7a42f8bfb7",
+			DBName:  "tesodev",
+			ColName: "finance",
 		},
 	},
 }
