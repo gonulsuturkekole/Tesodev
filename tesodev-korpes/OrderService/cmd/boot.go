@@ -10,6 +10,18 @@ import (
 	"tesodev-korpes/pkg/Kafka/producer"
 )
 
+// @title Order Service API
+// @version 1.0
+// @description This is the Order Service API for handling CRUD operations related to orders.
+// @termsOfService http://swagger.io/terms/
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8002
+// @BasePath /api/v1
+// @schemes http
+
 func BootOrderService(client *mongo.Client, h_client *client.CustomerClient, kafkaProducer *producer.Producer, e *echo.Echo) {
 	config := config3.GetOrderConfig("dev")
 	orderCol, err := pkg.GetMongoCollection(client, config.DbConfig.DBName, config.DbConfig.ColName)

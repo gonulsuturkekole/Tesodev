@@ -82,6 +82,7 @@ services:
     environment:
       SWAGGER_JSON: /swagger.json
     volumes:
-      - ./docs/swagger.json:/swagger.json
+      - ./tesodev-korpes/docs/swagger.json:/swagger.json
+
 
 

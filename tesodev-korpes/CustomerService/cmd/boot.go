@@ -8,6 +8,18 @@ import (
 	"tesodev-korpes/pkg"
 )
 
+// @title Customer Service API
+// @version 1.0
+// @description This is a Customer Service API to handle the requests related to CRUD operations.
+// @termsOfService http://swagger.io/terms/
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8001
+// @BasePath /customer
+// @schemes http
+
 func BootCustomerService(client *mongo.Client, e *echo.Echo) {
 	config := config2.GetCustomerConfig("dev")
 	customerCol, err := pkg.GetMongoCollection(client, config.DbConfig.DBName, config.DbConfig.ColName)

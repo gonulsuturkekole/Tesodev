@@ -10,6 +10,7 @@ import (
 	_ "strconv"
 	"tesodev-korpes/CustomerService/authentication"
 	"tesodev-korpes/CustomerService/internal/types"
+	_ "tesodev-korpes/docs"
 	"tesodev-korpes/pkg/log"
 )
 
@@ -20,9 +21,11 @@ type Handler struct {
 
 // NewHandler initializes the routes and sets up the handlers.
 // @title Customer Service API
-// @version 2.0
+// @version 1.0
 // @description API documentation for Customer Service.
-// @BasePath /api/v1
+// @host localhost:8001
+// @BasePath /
+
 func NewHandler(e *echo.Echo, service *Service) {
 	handler := &Handler{service: service, validate: validator.New()}
 
@@ -112,7 +115,7 @@ func (h *Handler) Verify(c echo.Context) error {
 // GetByID retrieves a customer by their ID.
 // @Summary Get customer by ID
 // @Description Get customer details by ID
-// @Tags customers
+// @Tags customer
 // @Produce  json
 // @Param id path string true "Customer ID"
 // @Success 200 {object} types.CustomerResponse
@@ -136,7 +139,7 @@ func (h *Handler) GetByID(c echo.Context) error {
 // Create adds a new customer to the database.
 // @Summary Create a new customer
 // @Description Create a new customer with the provided details
-// @Tags customers
+// @Tags customer
 // @Accept  json
 // @Produce  json
 // @Param customer body types.CustomerRequestModel true "Customer data"
@@ -179,7 +182,7 @@ func (h *Handler) Create(c echo.Context) error {
 // Update modifies an existing customer's details.
 // @Summary Update customer details
 // @Description Update customer details with the given data
-// @Tags customers
+// @Tags customer
 // @Accept  json
 // @Produce  json
 // @Param id path string true "Customer ID"
@@ -206,7 +209,7 @@ func (h *Handler) Update(c echo.Context) error {
 // PartialUpdate modifies specific fields of an existing customer.
 // @Summary Partially update customer details
 // @Description Partially update customer details with the given data
-// @Tags customers
+// @Tags customer
 // @Accept  json
 // @Produce  json
 // @Param id path string true "Customer ID"
@@ -233,7 +236,7 @@ func (h *Handler) PartialUpdate(c echo.Context) error {
 // Delete removes a customer from the database.
 // @Summary Delete customer
 // @Description Delete a customer by their ID
-// @Tags customers
+// @Tags customer
 // @Produce  json
 // @Param id path string true "Customer ID"
 // @Success 200 {object} map[string]string
@@ -252,6 +255,6 @@ func (h *Handler) Delete(c echo.Context) error {
 // GetCustomersByFilter retrieves customers based on filtering criteria.
 // @Summary Get customers by filter
 // @Description Get customers based on various filtering options
-// @Tags customers
+// @Tags customer
 // @Produce  json
 // @Param first

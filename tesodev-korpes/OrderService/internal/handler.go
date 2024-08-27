@@ -5,6 +5,7 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"net/http"
 	"tesodev-korpes/OrderService/internal/types"
+	_ "tesodev-korpes/docs"
 )
 
 type Handler struct {
@@ -13,8 +14,9 @@ type Handler struct {
 
 // NewHandler initializes the routes and sets up the handlers.
 // @title Order Service API
-// @version 2.0
+// @version 1.0
 // @description API documentation for Order Service.
+// @host localhost:8002
 // @BasePath /api/v1
 func NewHandler(e *echo.Echo, service *Service) {
 	handler := &Handler{service: service}
@@ -31,7 +33,7 @@ func NewHandler(e *echo.Echo, service *Service) {
 // GetByID retrieves an order by its ID.
 // @Summary Get order by ID
 // @Description Get order details by ID
-// @Tags orders
+// @Tags order
 // @Produce  json
 // @Param id path string true "Order ID"
 // @Success 200 {object} types.OrderResponseModel
@@ -53,7 +55,7 @@ func (h *Handler) GetByID(c echo.Context) error {
 // CreateOrder creates a new order for a customer.
 // @Summary Create a new order
 // @Description Create a new order for a specific customer
-// @Tags orders
+// @Tags order
 // @Accept  json
 // @Produce  json
 // @Param customer_id path string true "Customer ID"
@@ -89,7 +91,7 @@ func (h *Handler) CreateOrder(c echo.Context) error {
 // Update modifies an existing order's details.
 // @Summary Update order details
 // @Description Update order details with the given data
-// @Tags orders
+// @Tags order
 // @Accept  json
 // @Produce  json
 // @Param id path string true "Order ID"
@@ -115,7 +117,7 @@ func (h *Handler) Update(c echo.Context) error {
 // PartialUpdate modifies specific fields of an existing order.
 // @Summary Partially update order details
 // @Description Partially update order details with the given data
-// @Tags orders
+// @Tags order
 // @Accept  json
 // @Produce  json
 // @Param id path string true "Order ID"
@@ -141,7 +143,7 @@ func (h *Handler) PartialUpdate(c echo.Context) error {
 // Delete removes an order from the database.
 // @Summary Delete order
 // @Description Delete an order by its ID
-// @Tags orders
+// @Tags order
 // @Produce  json
 // @Param id path string true "Order ID"
 // @Success 200 {object} map[string]string
