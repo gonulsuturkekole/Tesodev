@@ -20,7 +20,7 @@ type Handler struct {
 
 // NewHandler initializes the routes and sets up the handlers.
 // @title Customer Service API
-// @version 1.0
+// @version 2.0
 // @description API documentation for Customer Service.
 // @BasePath /api/v1
 func NewHandler(e *echo.Echo, service *Service) {

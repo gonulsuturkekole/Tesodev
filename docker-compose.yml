@@ -80,6 +80,8 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SWAGGER_JSON: /swagger.yml
+      SWAGGER_JSON: /swagger.json
     volumes:
-      - ./swagger.yml:/swagger.yml
+      - ./docs/swagger.json:/swagger.json
+
+
