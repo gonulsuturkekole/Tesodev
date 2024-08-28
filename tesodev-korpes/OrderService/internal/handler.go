@@ -2,22 +2,28 @@ package internal
 
 import (
 	"github.com/labstack/echo/v4"
-	echoSwagger "github.com/swaggo/echo-swagger"
 	"net/http"
 	"tesodev-korpes/OrderService/internal/types"
-	_ "tesodev-korpes/docs"
 )
 
 type Handler struct {
 	service *Service
 }
 
-// NewHandler initializes the routes and sets up the handlers.
 // @title Order Service API
 // @version 1.0
-// @description API documentation for Order Service.
+// @description This is the Order Service API for handling CRUD operations related to orders.
+// @termsOfService http://swagger.io/terms/
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
 // @host localhost:8002
 // @BasePath /api/v1
+// @schemes http
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
 func NewHandler(e *echo.Echo, service *Service) {
 	handler := &Handler{service: service}
 
@@ -27,7 +33,6 @@ func NewHandler(e *echo.Echo, service *Service) {
 	g.PUT("/:id", handler.Update)
 	g.PATCH("/:id", handler.PartialUpdate)
 	g.DELETE("/:id", handler.Delete)
-	e.GET("/swagger/*", echoSwagger.WrapHandler)
 }
 
 // GetByID retrieves an order by its ID.
@@ -36,10 +41,11 @@ func NewHandler(e *echo.Echo, service *Service) {
 // @Tags order
 // @Produce  json
 // @Param id path string true "Order ID"
+// @Param Authentication header string true "JWT token"
 // @Success 200 {object} types.OrderResponseModel
-// @Failure 400 {object} map[string]string
-// @Failure 404 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Failure 400 {object} string
+// @Failure 404 {object} string
+// @Failure 500 {object} string
 // @Router /order/{id} [get]
 func (h *Handler) GetByID(c echo.Context) error {
 	id := c.Param("id")
@@ -62,8 +68,8 @@ func (h *Handler) GetByID(c echo.Context) error {
 // @Param order body types.OrderRequestModel true "Order data"
 // @Param Authentication header string true "JWT token"
 // @Success 201 {object} map[string]interface{}
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Failure 400 {object} string
+// @Failure 500 {object} string
 // @Router /order/{customer_id} [post]
 func (h *Handler) CreateOrder(c echo.Context) error {
 	var order types.OrderRequestModel
@@ -95,10 +101,11 @@ func (h *Handler) CreateOrder(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Param id path string true "Order ID"
+// @Param Authentication header string true "JWT token"
 // @Param order body types.OrderUpdateModel true "Order data"
 // @Success 200 {object} map[string]string
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Failure 400 {object} string
+// @Failure 500 {object} string
 // @Router /order/{id} [put]
 func (h *Handler) Update(c echo.Context) error {
 	id := c.Param("id")
@@ -121,10 +128,11 @@ func (h *Handler) Update(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Param id path string true "Order ID"
+// @Param Authentication header string true "JWT token"
 // @Param order body types.OrderUpdateModel true "Order data"
 // @Success 200 {object} map[string]string
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Failure 400 {object} string
+// @Failure 500 {object} string
 // @Router /order/{id} [patch]
 func (h *Handler) PartialUpdate(c echo.Context) error {
 	id := c.Param("id")
@@ -145,9 +153,10 @@ func (h *Handler) PartialUpdate(c echo.Context) error {
 // @Description Delete an order by its ID
 // @Tags order
 // @Produce  json
+// @Param Authentication header string true "JWT token"
 // @Param id path string true "Order ID"
 // @Success 200 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Failure 500 {object} string
 // @Router /order/{id} [delete]
 func (h *Handler) Delete(c echo.Context) error {
 	id := c.Param("id")

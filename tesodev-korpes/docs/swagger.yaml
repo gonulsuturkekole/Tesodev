@@ -1,4 +1,31 @@
 definitions:
+  tesodev-korpes_CustomerService_internal_types.CustomerResponseModel:
+    properties:
+      additional_info:
+        additionalProperties:
+          type: string
+        type: object
+      age:
+        type: integer
+      contact_option:
+        items:
+          type: string
+        type: array
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      token:
+        type: string
+      username:
+        type: string
+    type: object
   tesodev-korpes_OrderService_internal_types.OrderResponseModel:
     properties:
       created_at:
@@ -18,27 +45,12 @@ definitions:
       updated_at:
         type: string
     type: object
-  types.Address:
-    properties:
-      city:
-        type: string
-      customer_id:
-        type: string
-      id:
-        type: string
-      street:
-        type: string
-    type: object
   types.Customer:
     properties:
       additional_info:
         additionalProperties:
           type: string
         type: object
-      addresses:
-        items:
-          $ref: '#/definitions/types.Address'
-        type: array
       age:
         type: integer
       city:
@@ -81,10 +93,6 @@ definitions:
     type: object
   types.CustomerRequestModel:
     properties:
-      addresses:
-        items:
-          $ref: '#/definitions/types.Address'
-        type: array
       age:
         type: integer
       created_at:
@@ -104,15 +112,6 @@ definitions:
     - last_name
     - password
     - username
-    type: object
-  types.CustomerResponse:
-    properties:
-      first_name:
-        type: string
-      last_name:
-        type: string
-      username:
-        type: string
     type: object
   types.CustomerUpdateModel:
     properties:
@@ -173,6 +172,8 @@ definitions:
         type: string
       payment_method:
         type: string
+      priceCent:
+        type: integer
       shipment_status:
         type: string
       updated_at:
@@ -181,7 +182,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /customer:
+  /customer/:
     post:
       consumes:
       - application/json
@@ -197,20 +198,18 @@ paths:
       - application/json
       responses:
         "201":
-          description: Created
+          description: Customer created
           schema:
             additionalProperties: true
             type: object
         "400":
-          description: Bad Request
+          description: Invalid customer data
           schema:
-            additionalProperties: true
-            type: object
+            type: string
         "500":
-          description: Internal Server Error
+          description: Internal server error
           schema:
-            additionalProperties: true
-            type: object
+            type: string
       summary: Create a new customer
       tags:
       - customer
@@ -223,21 +222,28 @@ paths:
         name: id
         required: true
         type: string
+      - description: JWT token
+        in: header
+        name: Authentication
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Customer deleted successfully
           schema:
             additionalProperties:
               type: string
             type: object
+        "404":
+          description: Customer not found
+          schema:
+            type: string
         "500":
-          description: Internal Server Error
+          description: Internal server error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
       summary: Delete customer
       tags:
       - customer
@@ -249,31 +255,30 @@ paths:
         name: id
         required: true
         type: string
+      - description: JWT token
+        in: header
+        name: Authentication
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/types.CustomerResponse'
+            $ref: '#/definitions/tesodev-korpes_CustomerService_internal_types.CustomerResponseModel'
         "400":
-          description: Bad Request
+          description: Invalid customer ID
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "404":
-          description: Not Found
+          description: Customer not found
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "500":
-          description: Internal Server Error
+          description: Internal server error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
       summary: Get customer by ID
       tags:
       - customer
@@ -293,27 +298,32 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/types.CustomerUpdateModel'
+      - description: JWT token
+        in: header
+        name: Authentication
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Customer partially updated successfully
           schema:
             additionalProperties:
               type: string
             type: object
         "400":
-          description: Bad Request
+          description: Invalid input
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
+        "404":
+          description: Customer not found
+          schema:
+            type: string
         "500":
-          description: Internal Server Error
+          description: Internal server error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
       summary: Partially update customer details
       tags:
       - customer
@@ -333,28 +343,85 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/types.CustomerUpdateModel'
+      - description: JWT token
+        in: header
+        name: Authentication
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Customer updated successfully
           schema:
             additionalProperties:
               type: string
             type: object
         "400":
-          description: Bad Request
+          description: Invalid input
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
+        "404":
+          description: Customer not found
+          schema:
+            type: string
         "500":
-          description: Internal Server Error
+          description: Internal server error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
       summary: Update customer details
+      tags:
+      - customer
+  /customers:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of customers based on optional filters like first
+        name, age greater than, and age less than. Pagination is supported.
+      parameters:
+      - description: Filter by first name
+        in: query
+        name: first_name
+        type: string
+      - description: Filter by age greater than
+        in: query
+        name: agt
+        type: integer
+      - description: Filter by age less than
+        in: query
+        name: alt
+        type: integer
+      - description: Page number for pagination
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Customer data retrieved successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid page or limit parameter
+          schema:
+            type: string
+        "404":
+          description: No customers found
+          schema:
+            type: string
+        "500":
+          description: Error fetching customers
+          schema:
+            type: string
+      summary: Get customers by filter
       tags:
       - customer
   /login:
@@ -377,23 +444,19 @@ paths:
           schema:
             $ref: '#/definitions/types.Customer'
         "400":
-          description: Bad Request
+          description: Invalid input
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "401":
-          description: Unauthorized
+          description: Invalid credentials
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "500":
-          description: Internal Server Error
+          description: Internal server error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
+      security:
+      - BearerAuth: []
       summary: User login
       tags:
       - authentication
@@ -430,15 +493,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
       summary: Create a new order
       tags:
       - order
@@ -446,6 +505,11 @@ paths:
     delete:
       description: Delete an order by its ID
       parameters:
+      - description: JWT token
+        in: header
+        name: Authentication
+        required: true
+        type: string
       - description: Order ID
         in: path
         name: id
@@ -463,9 +527,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
       summary: Delete order
       tags:
       - order
@@ -475,6 +537,11 @@ paths:
       - description: Order ID
         in: path
         name: id
+        required: true
+        type: string
+      - description: JWT token
+        in: header
+        name: Authentication
         required: true
         type: string
       produces:
@@ -487,21 +554,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "404":
           description: Not Found
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
       summary: Get order by ID
       tags:
       - order
@@ -515,6 +576,11 @@ paths:
         name: id
         required: true
         type: string
+      - description: JWT token
+        in: header
+        name: Authentication
+        required: true
+        type: string
       - description: Order data
         in: body
         name: order
@@ -533,15 +599,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
       summary: Partially update order details
       tags:
       - order
@@ -555,6 +617,11 @@ paths:
         name: id
         required: true
         type: string
+      - description: JWT token
+        in: header
+        name: Authentication
+        required: true
+        type: string
       - description: Order data
         in: body
         name: order
@@ -573,15 +640,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
       summary: Update order details
       tags:
       - order
@@ -591,7 +654,7 @@ paths:
       parameters:
       - description: JWT token
         in: header
-        name: Authentication
+        name: Authorization
         required: true
         type: string
       produces:
@@ -602,17 +665,19 @@ paths:
           schema:
             type: string
         "401":
-          description: Unauthorized
+          description: Invalid or expired token
           schema:
             additionalProperties:
               type: string
             type: object
         "500":
-          description: Internal Server Error
+          description: Internal server error
           schema:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Verify JWT token
       tags:
       - authentication

@@ -14,7 +14,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "customers"
+                    "customer"
                 ],
                 "summary": "Create a new customer",
                 "parameters": [
@@ -26,25 +26,32 @@
                         "schema": {
                             "$ref": "#/definitions/types.CustomerRequestModel"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "JWT token",
+                        "name": "Authentication",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "Customer created",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid customer data",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -60,7 +67,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "customers"
+                    "customer"
                 ],
                 "summary": "Get customer by ID",
                 "parameters": [
@@ -69,6 +76,13 @@
                         "description": "Customer ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "JWT token",
+                        "name": "Authentication",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -80,7 +94,7 @@
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid customer ID",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -89,7 +103,7 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Customer not found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -98,7 +112,7 @@
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -117,7 +131,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "customers"
+                    "customer"
                 ],
                 "summary": "Update customer details",
                 "parameters": [
@@ -136,11 +150,18 @@
                         "schema": {
                             "$ref": "#/definitions/types.CustomerUpdateModel"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "JWT token",
+                        "name": "Authentication",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Customer updated successfully",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -149,7 +170,16 @@
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Customer not found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -158,7 +188,7 @@
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -174,7 +204,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "customers"
+                    "customer"
                 ],
                 "summary": "Delete customer",
                 "parameters": [
@@ -184,11 +214,27 @@
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "JWT token",
+                        "name": "Authentication",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Customer deleted successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Customer not found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -197,7 +243,7 @@
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -216,7 +262,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "customers"
+                    "customer"
                 ],
                 "summary": "Partially update customer details",
                 "parameters": [
@@ -235,11 +281,18 @@
                         "schema": {
                             "$ref": "#/definitions/types.CustomerUpdateModel"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "JWT token",
+                        "name": "Authentication",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Customer partially updated successfully",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -248,7 +301,16 @@
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Customer not found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -257,7 +319,7 @@
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -300,7 +362,7 @@
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid input",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -309,7 +371,7 @@
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Invalid credentials",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -318,7 +380,7 @@
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -339,7 +401,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "order"
                 ],
                 "summary": "Create a new order",
                 "parameters": [
@@ -403,7 +465,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "order"
                 ],
                 "summary": "Get order by ID",
                 "parameters": [
@@ -460,7 +522,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "order"
                 ],
                 "summary": "Update order details",
                 "parameters": [
@@ -517,7 +579,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "order"
                 ],
                 "summary": "Delete order",
                 "parameters": [
@@ -559,7 +621,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "order"
                 ],
                 "summary": "Partially update order details",
                 "parameters": [
@@ -625,7 +687,7 @@
                     {
                         "type": "string",
                         "description": "JWT token",
-                        "name": "Authentication",
+                        "name": "Authorization",
                         "in": "header",
                         "required": true
                     }
@@ -638,7 +700,7 @@
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Invalid or expired token",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -647,7 +709,7 @@
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {

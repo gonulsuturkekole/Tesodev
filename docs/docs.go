@@ -25,7 +25,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "customers"
+                    "customer"
                 ],
                 "summary": "Create a new customer",
                 "parameters": [
@@ -37,25 +37,32 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/types.CustomerRequestModel"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "JWT token",
+                        "name": "Authentication",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "Customer created",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid customer data",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -71,7 +78,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "customers"
+                    "customer"
                 ],
                 "summary": "Get customer by ID",
                 "parameters": [
@@ -80,6 +87,13 @@ const docTemplate = `{
                         "description": "Customer ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "JWT token",
+                        "name": "Authentication",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -91,7 +105,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid customer ID",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -100,7 +114,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Customer not found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -109,7 +123,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -128,7 +142,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "customers"
+                    "customer"
                 ],
                 "summary": "Update customer details",
                 "parameters": [
@@ -147,11 +161,18 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/types.CustomerUpdateModel"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "JWT token",
+                        "name": "Authentication",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Customer updated successfully",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -160,7 +181,16 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Customer not found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -169,7 +199,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -185,7 +215,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "customers"
+                    "customer"
                 ],
                 "summary": "Delete customer",
                 "parameters": [
@@ -195,11 +225,27 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "JWT token",
+                        "name": "Authentication",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Customer deleted successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Customer not found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -208,7 +254,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -227,7 +273,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "customers"
+                    "customer"
                 ],
                 "summary": "Partially update customer details",
                 "parameters": [
@@ -246,11 +292,18 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/types.CustomerUpdateModel"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "JWT token",
+                        "name": "Authentication",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Customer partially updated successfully",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -259,7 +312,16 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Customer not found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -268,7 +330,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -311,7 +373,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid input",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -320,7 +382,7 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Invalid credentials",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -329,7 +391,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -350,7 +412,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "order"
                 ],
                 "summary": "Create a new order",
                 "parameters": [
@@ -414,7 +476,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "order"
                 ],
                 "summary": "Get order by ID",
                 "parameters": [
@@ -471,7 +533,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "order"
                 ],
                 "summary": "Update order details",
                 "parameters": [
@@ -528,7 +590,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "order"
                 ],
                 "summary": "Delete order",
                 "parameters": [
@@ -570,7 +632,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "order"
                 ],
                 "summary": "Partially update order details",
                 "parameters": [
@@ -636,7 +698,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "JWT token",
-                        "name": "Authentication",
+                        "name": "Authorization",
                         "in": "header",
                         "required": true
                     }
@@ -649,7 +711,7 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Invalid or expired token",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -658,7 +720,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {

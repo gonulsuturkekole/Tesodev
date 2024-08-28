@@ -173,8 +173,3 @@ func (r *Repository) ExistsByID(ctx context.Context, id string) (bool, error) {
 	}
 	return count > 0, nil
 }
-
-func (r *Repository) CreateAddress(ctx context.Context, address types.Address) (*mongo.InsertOneResult, error) {
-	res, err := r.collection.InsertOne(ctx, address)
-	return res, err
-}

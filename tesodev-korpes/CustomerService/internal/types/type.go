@@ -12,21 +12,7 @@ type CustomerRequestModel struct {
 	Username  string    `bson:"username" json:"username" validate:"required"`
 	Password  string    `bson:"password" json:"password" validate:"required"`
 	CreatedAt time.Time `bson:"created_at" json:"created_at"`
-	Addresses []Address `bson:"addresses" json:"addresses"`
 }
-
-type Address struct {
-	ID         string `bson:"_id,omitempty" json:"id"`
-	CustomerId string `bson:"customer_id" json:"customer_id"`
-	Street     string `bson:"street" json:"street"`
-	City       string `bson:"city" json:"city"`
-}
-
-//	type User struct {
-//		Username string `json:"username" 'bson:"username"`
-//		Password string `json:"-" bson:"password"`
-//		UserID   string `json:"id" 'bson:"id"`
-//	}
 
 type QueryParams struct {
 	FirstName      string `json:"first_name"`

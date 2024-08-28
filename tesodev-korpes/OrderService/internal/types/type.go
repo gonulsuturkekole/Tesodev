@@ -27,6 +27,7 @@ type OrderUpdateModel struct {
 	OrderName      string    `bson:"order_name" json:"order_name"`
 	ShipmentStatus string    `bson:"shipment_status" json:"shipment_status"`
 	PaymentMethod  string    `bson:"payment_method" json:"payment_method"`
+	PriceCent      int       `bson:"priceCent" json:"priceCent"`
 	UpdatedAt      time.Time `bson:"updated_at" json:"updated_at"`
 }
 
