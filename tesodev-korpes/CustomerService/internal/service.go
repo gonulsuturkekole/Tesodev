@@ -7,17 +7,19 @@ import (
 	"strings"
 	"tesodev-korpes/CustomerService/authentication"
 	"tesodev-korpes/CustomerService/internal/types"
+	"tesodev-korpes/OrderService/client"
 	"time"
-	"unicode"
 )
 
 type Service struct {
-	repo *Repository
+	repo      *Repository
+	cusClient *client.CustomerClient
 }
 
-func NewService(repo *Repository) *Service {
+func NewService(repo *Repository, cusClient *client.CustomerClient) *Service {
 	return &Service{
-		repo: repo,
+		repo:      repo,
+		cusClient: cusClient,
 	}
 }
 
@@ -76,11 +78,11 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Customer, erro
 		fmt.Printf("Last Name formatted in : %v nanoseconds by function\n", time.Since(start).Nanoseconds())
 	}
 
-	if len(customer.Phone) != 0 {
+	/*	if len(customer.PhoneNumbers) != 0 {
 		var formattedPhone string
-		for i, char := range customer.Phone {
+		for i, char := range customer.PhoneNumbers {
 			if unicode.IsDigit(char) {
-				if i != len(customer.Phone)-1 {
+				if i != len(customer.PhoneNumbers)-1 {
 					formattedPhone += string(char)
 					formattedPhone += "-"
 				} else {
@@ -89,8 +91,8 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Customer, erro
 
 			}
 		}
-		customer.Phone = formattedPhone
-	}
+		customer.PhoneNumbers = formattedPhone
+	}*/
 
 	if customer.AdditionalInfo == nil {
 		customer.AdditionalInfo = make(map[string]string)
@@ -169,7 +171,6 @@ func (s *Service) Update(ctx context.Context, id string, customerUpdateModel typ
 
 	customer.FirstName = customerUpdateModel.FirstName
 	customer.LastName = customerUpdateModel.LastName
-	customer.Phone = customerUpdateModel.Phone
 	customer.ContactOption = customerUpdateModel.ContactOption
 	customer.MembershipType = customerUpdateModel.MembershipType
 	customer.UpdatedAt = now
@@ -186,16 +187,36 @@ func (s *Service) ExistsbyID(ctx context.Context, id string) (bool, error) {
 	return s.repo.ExistsByID(ctx, id)
 }
 
-func (s *Service) CreateAddress(ctx context.Context, customerID string, addressModel types.Address) (string, error) {
+func (s *Service) CreateAddress(ctx context.Context, customerID string, addressModel types.Address, token string) (string, error) {
 	addressModel.ID = uuid.New().String()
 	addressModel.CustomerId = customerID
 
-	_, err := s.repo.CreateAddress(ctx, addressModel)
+	customer, err := s.cusClient.GetCustomerByID(customerID, token)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to get customer: %v", err)
+	}
+
+	if customer == nil {
+		return "", fmt.Errorf("customer not found")
+	}
+
+	_, err = s.repo.CreateAddress(ctx, addressModel)
+	if err != nil {
+		return "", fmt.Errorf("failed to create address: %v", err)
 	}
 
 	return addressModel.ID, nil
+}
+func (s *Service) CreatePhone(ctx context.Context, customerID string, phoneModel types.PhoneNumber) (string, error) {
+	phoneModel.ID = uuid.New().String()
+	phoneModel.CustomerId = customerID
+
+	_, err := s.repo.CreatePhone(ctx, phoneModel)
+	if err != nil {
+		return "", fmt.Errorf("failed to create phone number: %v", err)
+	}
+
+	return phoneModel.ID, nil
 }
 
 /*func containsDigit(s string) bool {

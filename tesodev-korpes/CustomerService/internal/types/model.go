@@ -10,7 +10,6 @@ type Customer struct {
 	LastName       string            `bson:"last_name" json:"last_name" validate:"required"`
 	Age            int               `bson:"age" json:"age"`
 	Email          string            `bson:"email" json:"email"`
-	Phone          string            `bson:"phone" json:"phone"`
 	City           string            `bson:"city" json:"city"`
 	State          string            `bson:"state" json:"state"`
 	ZipCode        string            `bson:"zip_code" json:"zip_code"`
@@ -23,4 +22,5 @@ type Customer struct {
 	UpdatedAt      time.Time         `bson:"updated_at" json:"updated_at"`
 	Token          string            `bson:"token" json:"token"`
 	Addresses      []Address         `bson:"addresses" json:"addresses"`
+	PhoneNumbers   []PhoneNumber     `bson:"phone_numbers" json:"phone_numbers"`
 }

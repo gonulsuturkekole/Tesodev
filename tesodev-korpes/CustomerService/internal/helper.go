@@ -19,9 +19,10 @@ func ToCustomerResponse(customer *types.Customer) *types.CustomerResponseModel {
 		Password:       customer.Password,
 		Age:            customer.Age,
 		Email:          customer.Email,
-		Phone:          customer.Phone,
+		PhoneNumber:    customer.PhoneNumbers,
 		AdditionalInfo: customer.AdditionalInfo,
 		ContactOption:  customer.ContactOption,
+		Addresses:      customer.Addresses,
 	}
 }
 
@@ -111,6 +112,32 @@ func ValidateCustomer(customer *types.CustomerRequestModel, validate *validator.
 					validationErrors[fieldError.Field()] = "This field is required"
 				}
 
+			}
+		}
+	}
+
+	if len(validationErrors) > 0 {
+		return &ValidationError{Errors: validationErrors}
+	}
+
+	return nil
+}
+
+func ValidateAddress(address *types.Address, validate *validator.Validate) error {
+	validationErrors := make(map[string]string)
+
+	if address.Street == "" {
+		validationErrors["Street"] = "Street is required"
+	}
+
+	if address.City == "" {
+		validationErrors["City"] = "City is required"
+	}
+
+	if err := validate.Struct(address); err != nil {
+		if fieldErrors, ok := err.(validator.ValidationErrors); ok {
+			for _, fieldError := range fieldErrors {
+				validationErrors[fieldError.Field()] = fieldError.Tag()
 			}
 		}
 	}

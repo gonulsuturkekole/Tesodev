@@ -60,11 +60,11 @@ func main() {
 
 	switch input {
 	case "customer":
-		cmd.BootCustomerService(client1, e)
+		cmd.BootCustomerService(client1, h_client, e)
 	case "order":
 		orderCmd.BootOrderService(client1, h_client, e)
 	case "both":
-		cmd.BootCustomerService(client1, e)
+		cmd.BootCustomerService(client1, h_client, e)
 		//  allowing both cmd.BootCustomerService(client, e)
 		// and BootOrderService(client, e) functions to run simultaneously in the 'both' case
 		go orderCmd.BootOrderService(client1, h_client, e)

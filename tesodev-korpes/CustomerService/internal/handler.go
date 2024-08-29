@@ -38,6 +38,7 @@ func NewHandler(e *echo.Echo, service *Service) {
 	e.GET("/customers", handler.GetCustomersByFilter) // Get endpoint for filter
 
 	e.POST("/customers/:customerId/addresses", handler.CreateAddress)
+	e.POST("/customers/:customerId/phoneNumbers", handler.CreatePhone)
 
 }
 func (h *Handler) Login(c echo.Context) error {
@@ -210,11 +211,49 @@ func (h *Handler) GetCustomersByFilter(c echo.Context) error {
 		"total_count": totalCount,
 	})
 }
-
 func (h *Handler) CreateAddress(c echo.Context) error {
 	var addressRequest types.Address
 
 	if err := c.Bind(&addressRequest); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	if err := ValidateAddress(&addressRequest, h.validate); err != nil {
+		if valErr, ok := err.(*ValidationError); ok {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": err.Error(),
+				"errors":  valErr.Errors,
+			})
+		}
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": err.Error(),
+		})
+	}
+
+	customerID := c.Param("customerId")
+	if customerID == "" {
+		return c.JSON(http.StatusBadRequest, "customerId is required")
+	}
+
+	token := c.Request().Header.Get("Authentication")
+	if token == "" {
+		return c.JSON(http.StatusUnauthorized, "Authentication token is required")
+	}
+
+	id, err := h.service.CreateAddress(c.Request().Context(), customerID, addressRequest, token)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusCreated, map[string]interface{}{
+		"message":   "Address created successfully!",
+		"createdId": id,
+	})
+}
+func (h *Handler) CreatePhone(c echo.Context) error {
+	var phoneRequest types.PhoneNumber
+
+	if err := c.Bind(&phoneRequest); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
@@ -223,13 +262,13 @@ func (h *Handler) CreateAddress(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "customerId is required")
 	}
 
-	id, err := h.service.CreateAddress(c.Request().Context(), customerID, addressRequest)
+	id, err := h.service.CreatePhone(c.Request().Context(), customerID, phoneRequest)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusCreated, map[string]interface{}{
-		"message":   "Address created successfully!",
+		"message":   "phone created successfully!",
 		"createdId": id,
 	})
 }

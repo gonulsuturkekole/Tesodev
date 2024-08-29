@@ -28,4 +28,5 @@ type CustomerResponse struct {
 	UserName string `bson:"username" json:"username"`
 	Name     string `bson:"first_name" json:"first_name"`
 	LastName string `bson:"last_name" json:"last_name"`
+	Address  string `bson:"address" json:"address"`
 }
