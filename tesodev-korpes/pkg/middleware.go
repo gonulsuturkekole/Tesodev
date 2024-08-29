@@ -45,6 +45,8 @@ func Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 			{Method: "POST", Path: "/login"},
 			{Method: "POST", Path: "/customer"},
 			{Method: "GET", Path: "/verify"},
+			{Method: "GET", Path: "/swagger/*"},
+			{Method: "GET", Path: "/customers"},
 		}
 
 		// Check if the current request should be skipped

@@ -186,18 +186,6 @@ func (s *Service) ExistsbyID(ctx context.Context, id string) (bool, error) {
 	return s.repo.ExistsByID(ctx, id)
 }
 
-func (s *Service) CreateAddress(ctx context.Context, customerID string, addressModel types.Address) (string, error) {
-	addressModel.ID = uuid.New().String()
-	addressModel.CustomerId = customerID
-
-	_, err := s.repo.CreateAddress(ctx, addressModel)
-	if err != nil {
-		return "", err
-	}
-
-	return addressModel.ID, nil
-}
-
 /*func containsDigit(s string) bool {
 	for i := 0; i < len(s); i++ {
 		if s[i] >= '0' && s[i] <= '9' {

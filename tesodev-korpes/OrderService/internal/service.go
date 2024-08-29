@@ -90,6 +90,7 @@ func (s *Service) Update(ctx context.Context, id string, orderUpdateModel types.
 	order.OrderName = orderUpdateModel.OrderName
 	order.ShipmentStatus = orderUpdateModel.ShipmentStatus
 	order.PaymentMethod = orderUpdateModel.PaymentMethod
+	order.PriceCent = orderUpdateModel.PriceCent
 	order.UpdatedAt = now
 	return s.repo.Update(ctx, id, order)
 

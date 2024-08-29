@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
+	_ "github.com/labstack/echo/v4"
+	echoSwagger "github.com/swaggo/echo-swagger"
 	"os"
 	"os/signal"
 	"sync"
@@ -13,6 +15,7 @@ import (
 	"tesodev-korpes/OrderService/client"
 	_ "tesodev-korpes/OrderService/client"
 	orderCmd "tesodev-korpes/OrderService/cmd"
+	_ "tesodev-korpes/docs"
 	"tesodev-korpes/pkg"
 	"tesodev-korpes/pkg/Kafka/consumer"
 	"tesodev-korpes/pkg/Kafka/producer"
@@ -52,6 +55,7 @@ func main() {
 	// Initialize Echo
 
 	e := echo.New()
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	e.Use(pkg.CorrelationIDMiddleware)
 	e.Use(middlewares.Logger())
 	e.Use(pkg.Authenticate)
