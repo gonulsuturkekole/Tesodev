@@ -254,21 +254,40 @@ func (h *Handler) CreatePhone(c echo.Context) error {
 	var phoneRequest types.PhoneNumber
 
 	if err := c.Bind(&phoneRequest); err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "Invalid request format",
+			"error":   err.Error(),
+		})
+	}
+	if err := ValidatePhoneNumber(&phoneRequest, h.validate); err != nil {
+		if valErr, ok := err.(*ValidationError); ok {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": "Validation failed",
+				"errors":  valErr.Errors,
+			})
+		}
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "Invalid phone number",
+			"error":   err.Error(),
+		})
 	}
 
 	customerID := c.Param("customerId")
 	if customerID == "" {
-		return c.JSON(http.StatusBadRequest, "customerId is required")
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "customerId is required",
+		})
 	}
-
 	id, err := h.service.CreatePhone(c.Request().Context(), customerID, phoneRequest)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"message": "Failed to create phone number",
+			"error":   err.Error(),
+		})
 	}
 
 	return c.JSON(http.StatusCreated, map[string]interface{}{
-		"message":   "phone created successfully!",
+		"message":   "Phone number created successfully!",
 		"createdId": id,
 	})
 }

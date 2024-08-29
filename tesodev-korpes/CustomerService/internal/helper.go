@@ -3,6 +3,7 @@ package internal
 import (
 	"errors"
 	"github.com/go-playground/validator/v10"
+	"strconv"
 	"strings"
 	"tesodev-korpes/CustomerService/internal/types"
 )
@@ -135,6 +136,37 @@ func ValidateAddress(address *types.Address, validate *validator.Validate) error
 	}
 
 	if err := validate.Struct(address); err != nil {
+		if fieldErrors, ok := err.(validator.ValidationErrors); ok {
+			for _, fieldError := range fieldErrors {
+				validationErrors[fieldError.Field()] = fieldError.Tag()
+			}
+		}
+	}
+
+	if len(validationErrors) > 0 {
+		return &ValidationError{Errors: validationErrors}
+	}
+
+	return nil
+}
+
+func ValidatePhoneNumber(phone *types.PhoneNumber, validate *validator.Validate) error {
+	validationErrors := make(map[string]string)
+
+	if len(phone.Phone) > 11 {
+		validationErrors["Phone"] = "Phone number cannot exceed 11 digits"
+	}
+	if len(phone.Phone) < 10 {
+		validationErrors["Phone"] = "Phone number cannot exceed 11 digits"
+	}
+	if phone.Phone[0] == '0' {
+		validationErrors["Phone"] = "Phone number cannot start with zero"
+	}
+	if _, err := strconv.Atoi(phone.Phone); err != nil {
+		validationErrors["Phone"] = "Phone number must contain only digits"
+	}
+
+	if err := validate.Struct(phone); err != nil {
 		if fieldErrors, ok := err.(validator.ValidationErrors); ok {
 			for _, fieldError := range fieldErrors {
 				validationErrors[fieldError.Field()] = fieldError.Tag()
