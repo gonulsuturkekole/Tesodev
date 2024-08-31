@@ -14,21 +14,21 @@ type ConsumerConfig struct {
 
 var cfgs = map[string]ConsumerConfig{
 	"prod": {
-		Port: ":8003",
+		Port: ":1938",
 		DbConfig: DbConfig{
 			DBName:  "tesodev",
 			ColName: "finance",
 		},
 	},
 	"qa": {
-		Port: ":8003",
+		Port: ":1938",
 		DbConfig: DbConfig{
 			DBName:  "tesodev",
 			ColName: "finance",
 		},
 	},
 	"dev": {
-		Port: ":8003",
+		Port: ":1938",
 		DbConfig: DbConfig{
 			DBName:  "tesodev",
 			ColName: "finance",

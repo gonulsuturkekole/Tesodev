@@ -72,7 +72,7 @@ func Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 			return err
 		}
 		// Call the verify endpoint with the token
-		verifyUrl := "http://localhost:8001/verify"
+		verifyUrl := "http://localhost:1907/verify"
 		req, err := http.NewRequest("GET", verifyUrl, nil)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create verification request"})

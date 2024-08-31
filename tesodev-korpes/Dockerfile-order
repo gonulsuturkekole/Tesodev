@@ -1,0 +1,32 @@
+# Use the Go 1.20-alpine image as the base image
+FROM golang:1.22-alpine AS builder
+
+# Set the Current Working Directory inside the container
+WORKDIR /app
+
+# Copy go.mod and go.sum from the root of the project to the current working directory
+COPY go.mod go.sum ./
+
+# Download all dependencies
+RUN go mod download
+
+# Copy the service's source code to the workspace
+COPY . .
+
+# Build the Go app
+RUN go build -o order_service .
+
+# Start a new stage from scratch with a minimal image
+FROM alpine:latest
+
+# Set the Working Directory inside the container
+WORKDIR /root/
+
+# Copy the compiled binary from the builder stage
+COPY --from=builder /app/order_service .
+
+# Run the application
+CMD ["./order_service"]
+
+# Docker konteynerinin çalıştığı portu belirt
+EXPOSE 1881

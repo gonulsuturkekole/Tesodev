@@ -48,6 +48,7 @@ func main() {
 
 	client1, err := pkg.GetMongoClient(dbConf.MongoDuration, dbConf.MongoClientURI)
 	if err != nil {
+		fmt.Println(err.Error())
 		panic(err)
 	}
 	h_client := client.NewCustomerClient(pkg.NewRestClient())
@@ -56,6 +57,8 @@ func main() {
 
 	e := echo.New()
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
+	//e.GET("/swagger/*", echoSwagger.EchoWrapHandler(echoSwagger.InstanceName("customer")))
+	//e.GET("/swagger/*", echoSwagger.EchoWrapHandler(echoSwagger.InstanceName("order")))
 	e.Use(pkg.CorrelationIDMiddleware)
 	e.Use(middlewares.Logger())
 	e.Use(pkg.Authenticate)

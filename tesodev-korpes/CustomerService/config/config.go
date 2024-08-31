@@ -10,7 +10,7 @@ type CustomerConfig struct {
 
 var cfgs = map[string]CustomerConfig{
 	"prod": {
-		Port: ":8001",
+		Port: ":1907",
 		DbConfig: struct {
 			DBName  string
 			ColName string
@@ -20,7 +20,7 @@ var cfgs = map[string]CustomerConfig{
 		},
 	},
 	"qa": {
-		Port: ":8001",
+		Port: ":1907",
 		DbConfig: struct {
 			DBName  string
 			ColName string
@@ -30,7 +30,7 @@ var cfgs = map[string]CustomerConfig{
 		},
 	},
 	"dev": {
-		Port: ":8001",
+		Port: ":1907",
 		DbConfig: struct {
 			DBName  string
 			ColName string

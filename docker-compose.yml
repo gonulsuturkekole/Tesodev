@@ -10,6 +10,43 @@ services:
     volumes:
       - ./mongodb:/data/db
 
+  customer_service:
+    build:
+      context: ./tesodev-korpes
+      dockerfile: Dockerfile-customer
+    ports:
+      - "1923:1907"  # 1923 dış port, 1907 konteyner portu
+    depends_on:
+      - mongo
+      - kafka
+    environment:
+      MONGO_URL: mongodb://mongo:27017
+
+  order_service:
+      build:
+        context: ./tesodev-korpes
+        dockerfile: Dockerfile-order
+      ports:
+        - "1999:1881"
+      depends_on:
+        - mongo
+        - kafka
+      environment:
+        MONGO_URL: mongodb://mongo:27017
+
+  consumer_service:
+      build:
+        context: ./tesodev-korpes
+        dockerfile: Dockerfile-consumer
+      ports:
+        - "1139:1938"
+      depends_on:
+        - mongo
+        - kafka
+      environment:
+        MONGO_URL: mongodb://mongo:27017
+
+
   # Zookeeper Servisi
   zookeeper:
     image: confluentinc/cp-zookeeper:latest

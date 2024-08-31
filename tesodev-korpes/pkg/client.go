@@ -105,5 +105,5 @@ func (c *RestClient) ProcessClientResponseData(req *fasthttp.Request, resp *fast
 
 func isLoginEndpoint(URI string) bool {
 	// Login endpointi ile eşleşen bir kontrol ekleyin. Örneğin:
-	return URI == "http://localhost:8001/login"
+	return URI == "http://localhost:1907/login"
 }
