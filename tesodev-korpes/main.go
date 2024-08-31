@@ -48,7 +48,9 @@ func main() {
 
 	client1, err := pkg.GetMongoClient(dbConf.MongoDuration, dbConf.MongoClientURI)
 	if err != nil {
+		fmt.Println(err.Error())
 		panic(err)
+
 	}
 	h_client := client.NewCustomerClient(pkg.NewRestClient())
 	consumerClient := clientCon.NewConsumerClient(pkg.NewRestClient())

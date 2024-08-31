@@ -76,6 +76,35 @@ services:
 
 
 
+  customer-service:
+
+    ports:
+      - "8001:8001"
+    network_mode: "host"
+    depends_on:
+      - mongo
+      - kafka
 
 
+  order-service:
 
+    ports:
+      - "8002:8002"
+    network_mode: "host"
+    depends_on:
+      - mongo
+      - kafka
+
+  consumer-service:
+    build:
+      context: ./tesodev-korpes/
+      dockerfile: Dockerfile
+    command:
+      - /tesodev
+      - consumer
+    ports:
+      - "8003:8003"
+    network_mode: "host"
+    depends_on:
+      - mongo
+      - kafka
