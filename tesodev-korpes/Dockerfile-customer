@@ -1,32 +1,21 @@
-# Use the Go 1.20-alpine image as the base image
-FROM golang:1.22-alpine AS builder
+#FROM golang:1.22
 
-# Set the Current Working Directory inside the container
-WORKDIR /app
+#WORKDIR /app
 
-# Copy go.mod and go.sum from the root of the project to the current working directory
-COPY go.mod go.sum ./
+#COPY go.mod .
+#COPY go.sum .
+#RUN go mod download
 
-# Download all dependencies
-RUN go mod download
+#COPY main.go .
+#COPY CustomerService/ ./CustomerService/
+#COPY ConsumerService/ ./ConsumerService/
+#COPY OrderService/ ./OrderService/
+#COPY pkg/ ./pkg/
+#COPY docs/ ./docs/
+#COPY shared/ ./shared/
 
-# Copy the service's source code to the workspace
-COPY . .
+#RUN go build -o /tesodev .
 
-# Build the Go app
-RUN go build -o customer_service .
+#expose 8001
 
-# Start a new stage from scratch with a minimal image
-FROM alpine:latest
-
-# Set the Working Directory inside the container
-WORKDIR /root/
-
-# Copy the compiled binary from the builder stage
-COPY --from=builder /app/customer_service .
-
-# Run the application
-CMD ["./customer_service"]
-
-# Expose the port the application will run on
-EXPOSE 1907
+#CMD ["/tesodev","customer"]

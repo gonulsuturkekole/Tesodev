@@ -50,6 +50,7 @@ func main() {
 	if err != nil {
 		fmt.Println(err.Error())
 		panic(err)
+
 	}
 	h_client := client.NewCustomerClient(pkg.NewRestClient())
 	consumerClient := clientCon.NewConsumerClient(pkg.NewRestClient())
