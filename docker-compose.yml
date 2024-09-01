@@ -77,7 +77,12 @@ services:
 
 
   customer-service:
-
+    build:
+      context: ./tesodev-korpes/
+      dockerfile: Dockerfile
+    command:
+      - /tesodev
+      - customer
     ports:
       - "8001:8001"
     network_mode: "host"
@@ -87,7 +92,12 @@ services:
 
 
   order-service:
-
+    build:
+      context: ./tesodev-korpes/
+      dockerfile: Dockerfile
+    command:
+      - /tesodev
+      - order
     ports:
       - "8002:8002"
     network_mode: "host"
@@ -103,7 +113,7 @@ services:
       - /tesodev
       - consumer
     ports:
-      - "8003:8003"
+      - "9092:9092"
     network_mode: "host"
     depends_on:
       - mongo
