@@ -1,0 +1,21 @@
+FROM golang:1.22
+
+WORKDIR /app
+
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
+
+COPY main.go .
+COPY CustomerService/ ./CustomerService/
+COPY ConsumerService/ ./ConsumerService/
+COPY OrderService/ ./OrderService/
+COPY pkg/ ./pkg/
+COPY docs/ ./docs/
+COPY shared/ ./shared/
+
+RUN go build -o /tesodev .
+
+EXPOSE 1881
+
+CMD ["order"]

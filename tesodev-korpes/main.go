@@ -65,7 +65,7 @@ func main() {
 	e.Use(pkg.Authenticate)
 
 	// Kafka configuration settings
-	brokers := []string{"localhost:9092"}
+	brokers := []string{"kafka:9092"}
 	topic := "your_topic_name"
 
 	// Initialize Kafka Producer

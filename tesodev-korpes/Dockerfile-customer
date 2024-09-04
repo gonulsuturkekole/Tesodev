@@ -16,4 +16,6 @@ COPY shared/ ./shared/
 
 RUN go build -o /tesodev .
 
-#CMD ["/tesodev","customer"]
+EXPOSE 1907
+
+CMD ["customer"]

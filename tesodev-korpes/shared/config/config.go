@@ -12,16 +12,19 @@ type DbConfig struct {
 
 var cfgs = map[string]DbConfig{
 	"prod": {
-		MongoDuration:  time.Second * 10,
-		MongoClientURI: "mongodb://root:root1234@mongodb_docker:27017",
+		MongoDuration:  time.Second * 100,
+		MongoClientURI: "mongodb+srv://bilge:bilge123@cluster0.cbdmk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+		//MongoClientURI: "mongodb://root:root1234@localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.3.0",
 	},
 	"qa": {
-		MongoDuration:  time.Second * 10,
-		MongoClientURI: "mongodb://root:root1234@mongodb_docker:27017",
+		MongoDuration:  time.Second * 100,
+		MongoClientURI: "mongodb+srv://bilge:bilge123@cluster0.cbdmk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+		//MongoClientURI: "mongodb://root:root1234@localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.3.0",
 	},
 	"dev": {
-		MongoDuration:  time.Second * 10,
-		MongoClientURI: "mongodb://localhost:27017/",
+		MongoDuration:  time.Second * 100,
+		MongoClientURI: "mongodb+srv://bilge:bilge123@cluster0.cbdmk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+		//MongoClientURI: "mongodb://root:root1234@localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.3.0",
 	},
 }
 
