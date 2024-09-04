@@ -1,21 +1,19 @@
-#FROM golang:1.22
+FROM golang:1.22
 
-#WORKDIR /app
+WORKDIR /app
 
-#COPY go.mod .
-#COPY go.sum .
-#RUN go mod download
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
 
-#COPY main.go .
-#COPY CustomerService/ ./CustomerService/
-#COPY ConsumerService/ ./ConsumerService/
-#COPY OrderService/ ./OrderService/
-#COPY pkg/ ./pkg/
-#COPY docs/ ./docs/
-#COPY shared/ ./shared/
+COPY main.go .
+COPY CustomerService/ ./CustomerService/
+COPY ConsumerService/ ./ConsumerService/
+COPY OrderService/ ./OrderService/
+COPY pkg/ ./pkg/
+COPY docs/ ./docs/
+COPY shared/ ./shared/
 
-#RUN go build -o /tesodev .
-
-#expose 8001
+RUN go build -o /tesodev .
 
 #CMD ["/tesodev","customer"]
