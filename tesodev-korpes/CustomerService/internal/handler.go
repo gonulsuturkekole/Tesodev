@@ -94,7 +94,7 @@ func (h *Handler) Login(c echo.Context) error {
 // @Security BearerAuth
 // @Router /verify [get]
 func (h *Handler) Verify(c echo.Context) error {
-	authHeader := c.Request().Header.Get("Authorization")
+	authHeader := c.Request().Header.Get("Authentication")
 	token, err := jwt.ParseWithClaims(authHeader, &authentication.Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return authentication.SecretKey, nil
 	})

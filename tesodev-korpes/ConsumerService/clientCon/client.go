@@ -21,7 +21,7 @@ func NewConsumerClient(restClient *pkg.RestClient) *ConsumerClient {
 // GetCustomerByID fetches a customer by ID using the RestClient.
 func (c *ConsumerClient) GetOrderByID(orderID string, token string) (*types.OrderResponseModel, error) {
 	var res types.OrderResponseModel
-	uri := fmt.Sprintf("http://localhost:1881/order/%s", orderID)
+	uri := fmt.Sprintf("http://order-service:1881/order/%s", orderID)
 	err := c.RestClient.DoGetRequest(uri, &res, token)
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func (c *ConsumerClient) GetOrderByID(orderID string, token string) (*types.Orde
 
 func (c *ConsumerClient) GetCustomerByID(customerID string, token string) (*types.CustomerResponseModel, error) {
 	var res types.CustomerResponseModel
-	uri := fmt.Sprintf("http://localhost:1907/customer/%s", customerID)
+	uri := fmt.Sprintf("http://customer-service:1907/customer/%s", customerID)
 	err := c.RestClient.DoGetRequest(uri, &res, token)
 	if err != nil {
 		return nil, err
@@ -41,7 +41,7 @@ func (c *ConsumerClient) GetCustomerByID(customerID string, token string) (*type
 
 func (c *ConsumerClient) GetToken() (*types.TokenResponseModel, error) {
 	var res types.TokenResponseModel
-	uri := fmt.Sprintf("http://localhost:1907/login")
+	uri := fmt.Sprintf("http://customer-service:1907/login")
 	err := c.RestClient.DoGetRequest(uri, &res, "")
 	if err != nil {
 		return nil, err

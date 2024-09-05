@@ -16,6 +16,6 @@ COPY shared/ ./shared/
 
 RUN go build -o /tesodev .
 
-EXPOSE 9092
+EXPOSE 1938
 
 CMD ["consumer"]

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"tesodev-korpes/ConsumerService/config"
 	"tesodev-korpes/CustomerService/authentication"
+	"time"
 )
 
 var secretKey string
@@ -72,15 +73,19 @@ func Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 			return err
 		}
 		// Call the verify endpoint with the token
-		verifyUrl := "http://localhost:1907/verify"
+		verifyUrl := "http://customer-service:1907/verify"
+
 		req, err := http.NewRequest("GET", verifyUrl, nil)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create verification request"})
 		}
 		req.Header.Set("Authentication", tokenString)
 
-		client := &http.Client{}
+		client := &http.Client{
+			Timeout: 5 * time.Second, // Set a reasonable timeout
+		}
 		res, err := client.Do(req)
+
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Verification request failed"})
 		}
