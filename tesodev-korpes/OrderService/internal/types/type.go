@@ -30,3 +30,13 @@ type CustomerResponse struct {
 	LastName string `bson:"last_name" json:"last_name"`
 	Address  string `bson:"address" json:"address"`
 }
+
+type DailyOrder struct {
+	Date   string           `bson:"date" json:"date"`
+	Orders []CustomerOrders `bson:"orders" json:"orders"`
+}
+
+type CustomerOrders struct {
+	CustomerId string `bson:"customer_id" json:"customer_id"`
+	Count      int    `bson:"count" json:"count"`
+}

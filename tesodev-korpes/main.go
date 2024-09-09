@@ -45,6 +45,7 @@ func main() {
 	e.Use(pkg.CorrelationIDMiddleware)
 	//e.Use(pkg.Authenticate)
 	e.Use(middlewares.Logger())
+
 	/*stats := middlewares.NewStats()
 	e.Use(middleware.Logger())
 	e.Use(stats.Process)
@@ -72,7 +73,6 @@ func main() {
 		panic("Invalid input. Use 'customer', 'order', or 'both'.")
 	}
 
-	// Keep the main function alive
 	select {}
 }
 

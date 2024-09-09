@@ -53,3 +53,20 @@ func (r *Repository) Delete(ctx context.Context, id string) error {
 	_, err := r.collection.DeleteOne(ctx, filter)
 	return err
 }
+
+func (r *Repository) CountOrdersByCustomerID(ctx context.Context, customerID string) (int64, error) {
+	filter := bson.M{"customer_id": customerID}
+	count, err := r.collection.CountDocuments(ctx, filter)
+	if err != nil {
+		return 0, fmt.Errorf("failed to count orders for customer %s: %v", customerID, err)
+	}
+	return count, nil
+}
+
+func (r *Repository) SaveDailyOrderSummary(ctx context.Context, dailyOrder types.DailyOrder) error {
+	_, err := r.collection.InsertOne(ctx, dailyOrder)
+	if err != nil {
+		return fmt.Errorf("failed to insert daily order summary: %v", err)
+	}
+	return nil
+}

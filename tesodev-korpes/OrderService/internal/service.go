@@ -35,15 +35,13 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Order, error) 
 
 	return order, nil
 }
-
-func (s *Service) CreateOrderService(ctx context.Context, customerID string, orderReq *types.OrderRequestModel, token string) (string, error) {
-
+func (s *Service) CreateOrderService(ctx context.Context, customerID string, orderReq *types.OrderRequestModel, token string) (string, int, error) {
 	customer, err := s.cusClient.GetCustomerByID(customerID, token)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 	if customer == nil {
-		return "", fmt.Errorf("customer not found")
+		return "", 0, fmt.Errorf("customer not found")
 	}
 
 	now := time.Now().Local()
@@ -60,14 +58,22 @@ func (s *Service) CreateOrderService(ctx context.Context, customerID string, ord
 
 	_, err = s.repo.Create(ctx, order)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
+
 	err = s.produceToKafka(order.Id)
 	if err != nil {
 		log.Printf("Failed to produce orderID to Kafka: %v", err)
 	}
-	return order.Id, nil
+
+	totalOrders, err := s.UpdateAndFetchCustomerOrderCount(ctx, customerID)
+	if err != nil {
+		return "", 0, fmt.Errorf("failed to update order count for customer %s: %v", customerID, err)
+	}
+
+	return order.Id, totalOrders, nil
 }
+
 func (s *Service) Update(ctx context.Context, id string, orderUpdateModel types.OrderUpdateModel) error {
 	order, err := s.GetByID(ctx, id)
 	now := time.Now().Local()
@@ -105,4 +111,29 @@ func (s *Service) produceToKafka(orderID string) error {
 
 	fmt.Printf("OrderID produced to Kafka: %s\n", orderID)
 	return writer.Close()
+}
+
+func (s *Service) UpdateAndFetchCustomerOrderCount(ctx context.Context, customerID string) (int, error) {
+
+	count, err := s.repo.CountOrdersByCustomerID(ctx, customerID)
+	if err != nil {
+		return 0, fmt.Errorf("failed to count orders for customer %s: %v", customerID, err)
+	}
+
+	customerOrder := types.CustomerOrders{
+		CustomerId: customerID,
+		Count:      int(count),
+	}
+
+	today := time.Now().Format("2006-01-02")
+	dailyOrder := types.DailyOrder{
+		Date:   today,
+		Orders: []types.CustomerOrders{customerOrder},
+	}
+
+	err = s.repo.SaveDailyOrderSummary(ctx, dailyOrder)
+	if err != nil {
+		return 0, fmt.Errorf("failed to save daily order summary for customer %s: %v", customerID, err)
+	}
+	return int(count), nil
 }

@@ -2,6 +2,7 @@ package internal
 
 import (
 	"github.com/labstack/echo/v4"
+	_ "go.mongodb.org/mongo-driver/bson"
 	_ "go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 	"tesodev-korpes/OrderService/internal/types"
@@ -10,6 +11,10 @@ import (
 type Handler struct {
 	service *Service
 }
+
+// Register the endpoint using the repository
+
+// Start the server
 
 func NewHandler(e *echo.Echo, service *Service) {
 	handler := &Handler{service: service}
@@ -33,30 +38,27 @@ func (h *Handler) GetByID(c echo.Context) error {
 	orderResponse := ToOrderResponse(order)
 	return c.JSON(http.StatusOK, orderResponse)
 }
-
 func (h *Handler) CreateOrder(c echo.Context) error {
 	var order types.OrderRequestModel
 
-	customerid := c.Param("customer_id")
-	// c. header dan jwt al
+	customerID := c.Param("customer_id")
 	token := c.Request().Header.Get("Authentication")
 
 	if err := c.Bind(&order); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	id, err := h.service.CreateOrderService(c.Request().Context(), customerid, &order, token)
 
+	id, totalOrders, err := h.service.CreateOrderService(c.Request().Context(), customerID, &order, token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-
 	response := map[string]interface{}{
-		"message":    "Success!",
-		"creadtedId": id,
+		"message":     "Success!",
+		"createdId":   id,
+		"totalOrders": totalOrders,
 	}
 
 	return c.JSON(http.StatusCreated, response)
-
 }
 
 func (h *Handler) Update(c echo.Context) error {
