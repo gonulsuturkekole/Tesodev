@@ -43,7 +43,7 @@ func main() {
 
 	e := echo.New()
 	e.Use(pkg.CorrelationIDMiddleware)
-	//e.Use(pkg.Authenticate)
+	e.Use(pkg.Authenticate)
 	e.Use(middlewares.Logger())
 
 	/*stats := middlewares.NewStats()

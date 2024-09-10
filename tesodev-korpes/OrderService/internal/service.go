@@ -66,12 +66,7 @@ func (s *Service) CreateOrderService(ctx context.Context, customerID string, ord
 		log.Printf("Failed to produce orderID to Kafka: %v", err)
 	}
 
-	totalOrders, err := s.UpdateAndFetchCustomerOrderCount(ctx, customerID)
-	if err != nil {
-		return "", 0, fmt.Errorf("failed to update order count for customer %s: %v", customerID, err)
-	}
-
-	return order.Id, totalOrders, nil
+	return order.Id, nil
 }
 
 func (s *Service) Update(ctx context.Context, id string, orderUpdateModel types.OrderUpdateModel) error {
@@ -113,27 +108,37 @@ func (s *Service) produceToKafka(orderID string) error {
 	return writer.Close()
 }
 
-func (s *Service) UpdateAndFetchCustomerOrderCount(ctx context.Context, customerID string) (int, error) {
-
-	count, err := s.repo.CountOrdersByCustomerID(ctx, customerID)
-	if err != nil {
-		return 0, fmt.Errorf("failed to count orders for customer %s: %v", customerID, err)
-	}
-
-	customerOrder := types.CustomerOrders{
-		CustomerId: customerID,
-		Count:      int(count),
-	}
-
+func (s *Service) CalculateDailyTotalOrders(ctx context.Context) error {
+	// Tüm müşterilerin siparişlerini say
+	customers := []string{"customer1", "customer2", "customer3"} // Burada müşteri kimliklerini dinamik olarak çekebilirsiniz.
 	today := time.Now().Format("2006-01-02")
-	dailyOrder := types.DailyOrder{
-		Date:   today,
-		Orders: []types.CustomerOrders{customerOrder},
+	var dailyOrders []types.CustomerOrders
+
+	for _, customerID := range customers {
+		count, err := s.repo.CountOrdersByCustomerID(ctx, customerID)
+		if err != nil {
+			return fmt.Errorf("failed to count orders for customer %s: %v", customerID, err)
+		}
+
+		// Her müşterinin sipariş sayısını kaydet
+		dailyOrders = append(dailyOrders, types.CustomerOrders{
+			CustomerId: customerID,
+			Count:      int(count),
+		})
 	}
 
-	err = s.repo.SaveDailyOrderSummary(ctx, dailyOrder)
-	if err != nil {
-		return 0, fmt.Errorf("failed to save daily order summary for customer %s: %v", customerID, err)
+	// Günlük sipariş özetini kaydet
+	dailyOrderSummary := types.DailyOrder{
+		Date:   today,
+		Orders: dailyOrders,
 	}
-	return int(count), nil
+
+	// MongoDB'ye kaydet
+	err := s.repo.SaveDailyOrderSummary(ctx, dailyOrderSummary)
+	if err != nil {
+		return fmt.Errorf("failed to save daily order summary: %v", err)
+	}
+
+	fmt.Println("Günlük sipariş özeti başarıyla kaydedildi.")
+	return nil
 }

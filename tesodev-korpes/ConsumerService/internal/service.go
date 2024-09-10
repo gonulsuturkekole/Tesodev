@@ -1,9 +1,11 @@
 package internal
 
 import (
-	"context"
+	//	"context"
+	//"tesodev-korpes/ConsumerService/internal/types"
 	_ "tesodev-korpes/OrderService/client"
-	"tesodev-korpes/OrderService/internal/types"
+
+	//"tesodev-korpes/OrderService/internal/types"
 	_ "tesodev-korpes/pkg"
 )
 
@@ -17,7 +19,7 @@ func NewService(repo *Repository) *Service {
 	}
 }
 
-func (s *Service) GetByID(ctx context.Context, id string) (*types.Order, error) {
+/*func (s *Service) GetByID(ctx context.Context, id string) (*types.Order, error) {
 	order, err := s.repo.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -27,3 +29,4 @@ func (s *Service) GetByID(ctx context.Context, id string) (*types.Order, error) 
 
 	return order, nil
 }
+*/

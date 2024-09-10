@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/robfig/cron/v3"
+	_ "github.com/robfig/cron/v3"
 	"go.mongodb.org/mongo-driver/mongo"
 	"tesodev-korpes/OrderService/client"
 	config3 "tesodev-korpes/OrderService/config"
@@ -24,15 +25,27 @@ func BootOrderService(client *mongo.Client, h_client *client.CustomerClient, e *
 
 	c := cron.New()
 
-	c.AddFunc("@daily", func() {
-
-		internal.NewService(nil, nil)
-		//daily repositorye ulaşmak
-		//günlük toplam siparişi hesaplamak
-		//bunları daily repositorye kaydet
-		fmt.Println("Every day")
+	// Test için her dakika çalışacak cron job
+	_, err = c.AddFunc("* * * * *", func() {
+		err := service.CalculateDailyTotalOrders(context.Background())
+		if err != nil {
+			fmt.Println("Failed to calculate daily total orders:", err)
+		} else {
+			fmt.Println("Daily total orders calculated successfully!")
+		}
 	})
+
+	if err != nil {
+		fmt.Println("Error adding cron job:", err)
+	}
+
+	// Cron başlatılır
 	c.Start()
 
+	// Sunucu başlatılır
 	e.Logger.Fatal(e.Start(config.Port))
 }
+
+//daily repositorye ulaşmak
+//günlük toplam siparişi hesaplamak
+//bunları daily repositorye kaydet
